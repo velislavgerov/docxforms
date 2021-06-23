@@ -12,7 +12,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  res.send('Download the sample <a href="/sample-template">template</a> or fill out the <a href="/sample-form">form</a>.');
+  res.send('Check out the sample <a href="https://drive.google.com/file/d/1prMkze-WOanVBAk6xGZp6MDlhncyPvZZ/view?usp=sharing">template</a> or fill out the <a href="/sample-form">form</a>.');
 });
 
 app.get('/sample-form', (req, res) => {
@@ -23,10 +23,6 @@ app.get('/sample-form', (req, res) => {
   <input type="text" name="last_name" id="last_name"/><br>
   <input type="submit" value="Download"/>
 </form>`);
-});
-
-app.get('/sample-template', (req, res) => {
-  res.sendFile('sample-template.docx', { root: path.join(__dirname, '.') });
 });
 
 app.post('/sample-form', async (req, res) => {

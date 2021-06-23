@@ -6,7 +6,7 @@ import path from 'path';
 import createReport from 'docx-templates';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || process.argv[2] || 8080;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

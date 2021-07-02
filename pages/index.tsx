@@ -1,8 +1,11 @@
 import Head from 'next/head'
 import Link from 'next/link'
 import styles from '../styles/Home.module.css'
+import { signIn, signOut, useSession } from 'next-auth/client'
 
 export default function Home() {
+  const [ session, loading ] = useSession()
+
   return (
     <div className={styles.container}>
       <Head>
@@ -10,6 +13,17 @@ export default function Home() {
         <meta name="description" content="Create web forms to fill Microsoft Word documents" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+
+      <>
+        {!session && <>
+          Not signed in <br/>
+          <button onClick={() => signIn()}>Sign in</button>
+        </>}
+        {session && <>
+          Signed in as {session.user.email} <br/>
+          <button onClick={() => signOut()}>Sign out</button>
+        </>}
+      </>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
@@ -42,11 +56,11 @@ export default function Home() {
             </a>
           </Link>
 
-          <Link href="/blog">
+          <Link href="/pricing">
             <a className={styles.card}>
-              <h2>Blog &rarr;</h2>
+              <h2>Pricing &rarr;</h2>
               <p>
-                Check out what we have to say!
+                Check out our offering.
               </p>
             </a>
           </Link>

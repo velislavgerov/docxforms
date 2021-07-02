@@ -89,10 +89,10 @@
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.2.0.tgz#f3933a44e365864f4dad5db94158106d511e8131"
   integrity sha512-sqKVVVOe5ivCaXDWivIJYVSaEgdQK9ul7a4Kity5Iw7u9+wBAPbX1RMSnLLmp7O4Vzj0WOWwMAJsTL00xwaNug==
 
-"@next-auth/prisma-adapter@0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@next-auth/prisma-adapter/-/prisma-adapter-0.5.0.tgz#2a7452df2822e6c1d47897fac9e9293394cd19ab"
-  integrity sha512-Ja4udaEdG/EHOMo8GLT2a4SnWa3en3zBSz0XBqSaVjpe7Xlw4Oi76VMI1WSkvjv1XBQsZk/zFgTnAJh/immz8g==
+"@next-auth/prisma-adapter@^0.5.2":
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/@next-auth/prisma-adapter/-/prisma-adapter-0.5.2.tgz#1636298819248884baf378bdafe0a777f3b3bb38"
+  integrity sha512-WpGJ6bhhCJknrWP4yoAgC+XNj3CjXG7G82KfYv168Degd2pjN1/q0DvMbcSUlzvqOr+1331ZfbafEaar7J0t9g==
 
 "@next-auth/prisma-legacy-adapter@0.0.1-canary.127":
   version "0.0.1-canary.127"

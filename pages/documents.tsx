@@ -1,16 +1,17 @@
-import { useState, useEffect, SyntheticEvent } from 'react'
+import { useState, useEffect, SyntheticEvent, FormEvent } from 'react'
 import { useSession } from 'next-auth/client'
 import axios from 'axios'
 
 import Layout from '../components/layout'
 import AccessDenied from '../components/access-denied'
 import { DocumentTemplate } from '@prisma/client'
+import Link from 'next/link'
 
 export default function Documents () {
   const [ session, loading ] = useSession()
   const [ content , setContent ] = useState()
   const [ selectedFile, setSelectedFile ] = useState<null | File>(null);
-  const [ documentTemplates, setDocumentTemplates ] = useState();
+  const [ documentTemplates, setDocumentTemplates ] = useState<[] | [doc: DocumentTemplate]>([]);
 
   // Fetch content from protected route
   useEffect(()=>{
@@ -28,7 +29,9 @@ export default function Documents () {
     setSelectedFile(target.files![0])
   }
 
-  const submitForm = () => {
+  const submitForm = (e: FormEvent) => {
+    e.preventDefault()
+
     const formData = new FormData()
     formData.append("name", selectedFile!.name)
     formData.append("file", selectedFile!)
@@ -36,9 +39,21 @@ export default function Documents () {
     axios
       .post('/api/documents', formData)
       .then((res) => {
-        alert("File Upload success")
+        alert("File Upload Success")
       })
       .catch((err) => alert("File Upload Error"))
+  }
+
+  const handleDelete = (id: string) => {
+    axios
+      .delete(`/api/documents/${id}`)
+      .then((res) => {
+        alert("File Deleted Successfully")
+      })
+      .catch((err) => {
+        console.error(err)
+        alert("File Delete Error")
+      })
   }
 
   // When rendering client side don't display anything until loading is complete
@@ -53,13 +68,36 @@ export default function Documents () {
       <h1>Protected Page</h1>
       <p><strong>{content || "\u00a0"}</strong></p>
       {documentTemplates != null && 
-        (<ul>
-          {documentTemplates.map((doc: DocumentTemplate) => <li key={doc.id}>{doc.fileName}</li>)}
-        </ul>)
+        (<table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Created at</th>
+              <th>Updated at</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+              
+          </tbody>
+          {documentTemplates.map((doc) => (
+            <tr key={doc.id}>
+              <td>{doc.fileName}</td>
+              <td>{doc.createdAt}</td>
+              <td>{doc.updatedAt}</td>
+              <td>
+                <Link href={`/documents/${doc.id}`}>
+                  <a>Edit</a>
+                </Link>
+                <button onClick={() => handleDelete(doc.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </table>)
       }
-      <form>
+      <form onSubmit={submitForm}>
         <input type="file" onChange={handleFileInput} />
-        <input type="submit" onClick={submitForm} />
+        <input type="submit" value="Upload"/>
       </form>
     </Layout>
   )

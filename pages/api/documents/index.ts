@@ -35,53 +35,67 @@ export default async function protectedHandler(
               equals: session.userId,
             }
           },
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            fileSize: true,
+            fileLastModifiedDate: true,
+            createdAt: true,
+            updatedAt: true,
+          },
         })
 
         return res.send({
-          documentTemplates,
+          data: documentTemplates,
           success: true,
           content:
             "This is protected content. You can access this content because you are signed in.",
         })
       } catch (error) {
-				return res.status(400).json({
-					success: false,
-				})
-			}
+        return res.status(400).json({
+          success: false,
+        })
+      }
     case 'POST':
       try {
         const form = formidable({ multiples: true });
-        form.parse(req, async (err, fields, files) => {
-          if (err) {
-            return res.status(400).json({
-              success: false,
-              error: `Could not upload file`
-            });
-          }
-
-          const file = files.file as formidable.File;
-          const buffer = fs.readFileSync(file.path);
-          const documentTemplate = await prisma.documentTemplate.create({
-            data: {
-              userId: session.userId,
-              fileName: file.name!,
-              fileType: file.type!,
-              fileSize: file.size!,
-              file: buffer,
-              fileLastModifiedDate: file.lastModifiedDate!,
-            },
-          })
-
-          return res.status(200).json({
-            fields,
-            files,
-            success: true,
+        const file = await new Promise((resolve, reject) => {
+          form.parse(req, async (err, fields, files) => {
+            if (err) {
+              reject(err as Error)
+            }
+            resolve(files.file as formidable.File)
           })
         })
 
-        return;
+        const buffer = fs.readFileSync(file.path);
+        const documentTemplate = await prisma.documentTemplate.create({
+          data: {
+            userId: session.userId,
+            fileName: file.name!,
+            fileType: file.type!,
+            fileSize: file.size!,
+            file: buffer,
+            fileLastModifiedDate: file.lastModifiedDate!,
+          },
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            fileSize: true,
+            fileLastModifiedDate: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        })
+
+        return res.status(200).json({
+          data: documentTemplate,
+          success: true,
+        })
       } catch (error) {
-				return res.status(400).json({
+        return res.status(400).json({
 					success: false,
 				})
 			}

@@ -2,26 +2,32 @@ import { useState, useEffect, SyntheticEvent, FormEvent } from 'react'
 import { useSession } from 'next-auth/client'
 import axios from 'axios'
 
-import Layout from '../components/layout'
-import AccessDenied from '../components/access-denied'
+import Layout from '../../components/layout'
+import AccessDenied from '../../components/access-denied'
 import { DocumentTemplate } from '@prisma/client'
-import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export default function Documents () {
+  const router = useRouter()
   const [ session, loading ] = useSession()
   const [ content , setContent ] = useState()
   const [ selectedFile, setSelectedFile ] = useState<null | File>(null);
   const [ documentTemplates, setDocumentTemplates ] = useState<[] | [doc: DocumentTemplate]>([]);
 
+  const fetchDocuments = async () => {
+    axios
+      .get(`/api/documents`)
+      .then((res) => {
+        const { content, data } = res.data;
+        if (content) { setContent(content) }
+        if (data) { setDocumentTemplates(data) }
+      })
+      .catch((err) => alert("Failed to load document"))
+  }
+
   // Fetch content from protected route
   useEffect(()=>{
-    const fetchData = async () => {
-      const res = await fetch('/api/documents')
-      const json = await res.json()
-      if (json.content) { setContent(json.content) }
-      if (json.documentTemplates) { setDocumentTemplates(json.documentTemplates) }
-    }
-    fetchData()
+    fetchDocuments()
   },[session])
 
   const handleFileInput = (e: SyntheticEvent) => {
@@ -32,22 +38,41 @@ export default function Documents () {
   const submitForm = (e: FormEvent) => {
     e.preventDefault()
 
+    if (selectedFile == null) {
+      alert("Please select file")
+      return
+    }
+
     const formData = new FormData()
-    formData.append("name", selectedFile!.name)
-    formData.append("file", selectedFile!)
+    formData.append("name", selectedFile.name)
+    formData.append("file", selectedFile)
   
     axios
       .post('/api/documents', formData)
       .then((res) => {
+        const { id } = res.data.data;
+        const form = e.target as HTMLFormElement
+        const fileInput = form.querySelector('input[type="file"]')! as HTMLInputElement
+        fileInput.value = ''
+        if (id) {
+          handleEdit(id)
+          return
+        }
+        fetchDocuments()
         alert("File Upload Success")
       })
       .catch((err) => alert("File Upload Error"))
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/documents/${id}`)
   }
 
   const handleDelete = (id: string) => {
     axios
       .delete(`/api/documents/${id}`)
       .then((res) => {
+        fetchDocuments()
         alert("File Deleted Successfully")
       })
       .catch((err) => {
@@ -78,21 +103,18 @@ export default function Documents () {
             </tr>
           </thead>
           <tbody>
-              
-          </tbody>
           {documentTemplates.map((doc) => (
             <tr key={doc.id}>
               <td>{doc.fileName}</td>
               <td>{doc.createdAt}</td>
               <td>{doc.updatedAt}</td>
               <td>
-                <Link href={`/documents/${doc.id}`}>
-                  <a>Edit</a>
-                </Link>
+                <button onClick={() => handleEdit(doc.id)}>Edit</button>
                 <button onClick={() => handleDelete(doc.id)}>Delete</button>
               </td>
             </tr>
           ))}
+          </tbody>
         </table>)
       }
       <form onSubmit={submitForm}>

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { getSession } from "next-auth/client"
 
-import prisma from '../../../lib/prisma'
+import prisma from '../../../../lib/prisma'
 
 export default async function protectedHandler(
   req: NextApiRequest,
@@ -32,6 +32,7 @@ export default async function protectedHandler(
             fileLastModifiedDate: true,
             createdAt: true,
             updatedAt: true,
+            forms: true,
           },
         })
 
@@ -47,6 +48,12 @@ export default async function protectedHandler(
       }
     case 'DELETE':
       try {
+        await prisma.form.deleteMany({
+          where: {
+            documentTemplateId: query.id as string,
+          }
+        })
+
         await prisma.documentTemplate.delete({
           where: {
             id: query.id as string,

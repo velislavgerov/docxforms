@@ -118,7 +118,7 @@ export default function Documents () {
         </table>)
       }
       <form onSubmit={submitForm}>
-        <input type="file" onChange={handleFileInput} />
+        <input type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
         <input type="submit" value="Upload"/>
       </form>
     </Layout>

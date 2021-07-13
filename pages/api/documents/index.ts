@@ -4,14 +4,8 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import fs from 'fs'
 import formidable from 'formidable'
 
-import PizZip from 'pizzip'
-import Docxtemplater from 'docxtemplater';
-import InspectModule from 'docxtemplater/js/inspect-module'
-
 import prisma from '../../../lib/prisma'
-import errorHandler from "../../../utils/error-handler"
-import { PessimisticLockTransactionRequiredError } from "typeorm"
-import { JsonSchema } from "@jsonforms/core"
+import { getSchema } from "../../../utils/document"
 
 export const config = {
   api: {
@@ -76,40 +70,13 @@ export default async function protectedHandler(
           })
         })
 
-        const buffer = fs.readFileSync(file.path);
-        var zip = new PizZip(buffer);
-        const iModule = InspectModule();
-        let doc;
-        try {
-          doc = new Docxtemplater(zip, {
-            paragraphLoop: true,
-            linebreaks: true,
-            modules: [iModule]
-          });
-        } catch(error) {
-          // Catch compilation errors (errors caused by the compilation of the template: misplaced tags)
-          errorHandler(error);
-        }
-
-        let tags = iModule.getAllTags();
-        console.log('tags', tags);
-
-        let schema: JsonSchema = {
+        const buffer = fs.readFileSync(file.path)
+        const schema = getSchema({
+          buffer,
           title: file.name!,
-          description: '',
-          type: 'object',
-          required: [],
-          properties: {},
-        };
-
-        for (const [key, value] of Object.entries(tags)) {
-          console.log(`${key}: ${value}`);
-          tags[key]['type'] = 'string';
-          schema.required?.push(key)
-        }
-        schema.properties = tags;
-
-        console.log('schema', schema);
+          description: ''
+        })
+        console.log('schema', schema)
 
         const documentTemplate = await prisma.documentTemplate.create({
           data: {
@@ -139,7 +106,6 @@ export default async function protectedHandler(
             userId: session.userId
           }
         })
-
         console.log('form', form);
 
         return res.status(200).json({

@@ -1,5 +1,3 @@
-import stream from 'stream';
-
 import PizZip from 'pizzip'
 import Docxtemplater from "docxtemplater";
 import type { NextApiRequest, NextApiResponse } from "next"
@@ -14,12 +12,6 @@ export const config = {
     bodyParser: false, // Disallow body parsing, consume as stream
   },
 };
-
-interface FormidableData {
-  err: any,
-  fields: formidable.Fields;
-  files: formidable.Files
-}
 
 export default async function protectedHandler(
   req: NextApiRequest,

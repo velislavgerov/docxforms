@@ -83,7 +83,8 @@ export default function Document () {
       <h1>{documentTemplate?.fileName}</h1>
       {documentTemplate?.forms.length && (<>
         <JsonForms
-          schema={JSON.parse(documentTemplate.forms[0].schemaJson)}
+          schema={documentTemplate.forms[0].schemaJson}
+          uischema={documentTemplate.forms[0].formJson}
           data={data}
           renderers={materialRenderers}
           cells={materialCells}

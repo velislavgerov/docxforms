@@ -1,4 +1,4 @@
-import { JsonSchema } from "@jsonforms/core";
+import { createCleanLabel, JsonSchema } from "@jsonforms/core";
 
 import PizZip from 'pizzip'
 import Docxtemplater from 'docxtemplater'
@@ -30,46 +30,81 @@ export function getTags (buffer: Buffer) {
   return iModule.getAllTags()
 }
 
-function traverse(topObj: object, jsonKey: string, jsonObj: any) {
+function transform({ schema, jsonKey, jsonObj, uiSchema, uiControl }: {
+  schema: JsonSchema,
+  jsonKey: string,
+  jsonObj: any,
+  uiSchema: object,
+  uiControl?: object
+}) {
   if( jsonObj !== null && typeof jsonObj == "object" ) {
-    if (Object.keys(jsonObj).length && jsonKey.startsWith('list_')) {
+    if (uiControl) {
+      uiSchema.elements.push(uiControl)
+    }
+
+    if (jsonKey.startsWith('list_')) {
       jsonObj['type'] = 'array'
-      jsonObj['items'] = {
-        type: 'object',
-        properties: {},
-      }
-      Object.entries(jsonObj).forEach(([key, value]) => {
-        // key is either an array index or object key
-        if (key !== 'type' && key !== 'items') {
-          traverse(topObj, key, value)
-          jsonObj['items']['properties'][key] = value
-          delete jsonObj[key]
+      if (Object.keys(jsonObj).length) {
+        jsonObj['items'] = {
+          type: 'object',
+          properties: {},
         }
-      });
-    } else if (Object.keys(jsonObj).length && jsonKey.startsWith('if_')) {
+        Object.entries(jsonObj).forEach(([key, value]) => {
+          // key is either an array index or object key
+          if (key !== 'type' && key !== 'items') {
+            transform({
+              uiSchema,
+              schema,
+              jsonKey: key,
+              jsonObj: value
+            })
+            jsonObj['items']['properties'][key] = value
+            delete jsonObj[key]
+          }
+        })
+      }
+    } else if (jsonKey.startsWith('if_')) {
       jsonObj['type'] = 'boolean'
       Object.entries(jsonObj).forEach(([key, value]) => {
         // key is either an array index or object key
         if (key !== 'type' && key !== 'items') {
-          traverse(topObj, key, value)
-          if (key in topObj) {
+          if (key in schema.properties!) {
             // XXX: What if this placeholder is a Section?
             console.log(`skipping "${key}" because it is already defined`)
           } else {
-            topObj[key] = value
+            transform({
+              uiSchema,
+              schema,
+              jsonKey: key,
+              jsonObj: value,
+              uiControl: {
+                type: 'Control',  
+                scope: `#/properties/${key}`,
+                label: getLabel(key)
+              }
+            })
+            schema.properties[key] = value
           }
           delete jsonObj[key]
         }
       })
-    } else if (jsonKey.startsWith('if_')) {
-      jsonObj['type'] = 'boolean'
     } else {
       jsonObj['type'] = 'string'
     } 
   }
 }
 
-export function getSchema({ buffer, title, description } : getSchemaInput) {
+const getLabel = (key: string): string => {
+  if (key.startsWith('if_')) {
+    key = key.replace('if_', '')
+  } else if (key.startsWith('list_')) {
+    key = key.replace('list_', '')
+  }
+
+  return createCleanLabel(key);
+};
+
+export function getSchemas({ buffer, title, description } : getSchemaInput) {
   let schema: JsonSchema = {
     title,
     description,
@@ -78,30 +113,37 @@ export function getSchema({ buffer, title, description } : getSchemaInput) {
     properties: {},
   };
 
-  let tags = getTags(buffer)
+  let uiSchema = {
+    "type": "VerticalLayout",
+    "elements": []
+  }
 
+  let tags = getTags(buffer)
   if (tags != null) {
-    for (const [key, value] of Object.entries(tags)) {
-      console.log(`${key}: ${value}`);
-      traverse(tags, key, value)
-    }
     schema.properties = tags
-    /*for (const [key, value] of Object.entries(tags)) {
-      console.log(`${key}: ${value}`);
-      if (key in schema.properties!) {
-        console.log(`skipping "${key}" because it is already defined`)
-      } else {
-        schema.required!.push(key)
-        schema.properties![key] = {
-          type: 'string',
-        };
-      }
-    }*/
+
+    for (const [key, value] of Object.entries(schema.properties)) {
+      console.log(`transform ${key}: ${value}`);
+      transform({
+        uiSchema,
+        schema,
+        jsonKey: key,
+        jsonObj: value,
+        uiControl: {
+          type: 'Control',  
+          scope: `#/properties/${key}`,
+          label: getLabel(key)
+        }
+      })
+    }
   }
   
-  return schema;
+  return {
+    schema,
+    uiSchema,
+  };
 }
 
-const document = { getTags, getSchema }
+const document = { getTags, getSchemas }
 
 export default document

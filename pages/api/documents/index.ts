@@ -5,7 +5,8 @@ import fs from 'fs'
 import formidable from 'formidable'
 
 import prisma from '../../../lib/prisma'
-import { getSchema } from "../../../utils/document"
+import { getSchemas } from "../../../utils/document"
+import { Prisma } from "@prisma/client"
 
 export const config = {
   api: {
@@ -60,23 +61,22 @@ export default async function protectedHandler(
       }
     case 'POST':
       try {
-        const webForm = formidable({ multiples: true });
-        const file = await new Promise((resolve, reject) => {
-          webForm.parse(req, async (err, fields, files) => {
-            if (err) {
-              reject(err as Error)
-            }
-            resolve(files.file as formidable.File)
-          })
+        const data: FormidableData = await new Promise((resolve, reject) => {
+          const form = formidable({ multiples: true })
+          form.parse(req, (err, fields, files) => {
+            if (err) reject({ err })
+            resolve({ err, fields, files })
+          }) 
         })
-
+        const { files: { file } } = data;
         const buffer = fs.readFileSync(file.path)
-        const schema = getSchema({
+        const { schema, uiSchema } = getSchemas({
           buffer,
           title: file.name!,
           description: ''
         })
         console.log('schema', schema)
+        console.log('uiSchema', uiSchema)
 
         const documentTemplate = await prisma.documentTemplate.create({
           data: {
@@ -101,8 +101,8 @@ export default async function protectedHandler(
         const form = await prisma.form.create({
           data: {
             documentTemplateId: documentTemplate.id,
-            schemaJson: JSON.stringify(schema),
-            formJson: '{}',
+            schemaJson: schema as Prisma.JsonObject,
+            formJson: uiSchema as Prisma.JsonObject,
             userId: session.userId
           }
         })

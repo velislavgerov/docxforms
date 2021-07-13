@@ -80,7 +80,16 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, uiControl }: {
               uiControl: {
                 type: 'Control',  
                 scope: `#/properties/${key}`,
-                label: getLabel(key)
+                label: getLabel(key),
+                rule: {
+                  effect: 'ENABLE',
+                  condition: {
+                    scope: uiControl!.scope,
+                    schema: {
+                      const: true
+                    }
+                  }
+                }
               }
             })
             schema.properties[key] = value

@@ -30,16 +30,18 @@ export function getTags (buffer: Buffer) {
   return iModule.getAllTags()
 }
 
-function transform({ schema, jsonKey, jsonObj, uiSchema, uiControl }: {
+function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
   schema: JsonSchema,
   jsonKey: string,
   jsonObj: any,
   uiSchema: object,
-  uiControl?: object
+  addToUiOrder?: boolean
 }) {
   if( jsonObj !== null && typeof jsonObj == "object" ) {
-    if (uiControl) {
-      uiSchema.elements.push(uiControl)
+    jsonObj['title'] = getLabel(jsonKey)
+
+    if (addToUiOrder && !uiSchema['ui:order'].some((key: string) => key === jsonKey)) {
+      uiSchema['ui:order'].push(jsonKey)
     }
 
     if (jsonKey.startsWith('list_')) {
@@ -51,7 +53,7 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, uiControl }: {
         }
         Object.entries(jsonObj).forEach(([key, value]) => {
           // key is either an array index or object key
-          if (key !== 'type' && key !== 'items') {
+          if (key !== 'type' && key !== 'items' && key !== 'title') {
             transform({
               uiSchema,
               schema,
@@ -67,33 +69,30 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, uiControl }: {
       jsonObj['type'] = 'boolean'
       Object.entries(jsonObj).forEach(([key, value]) => {
         // key is either an array index or object key
-        if (key !== 'type' && key !== 'items') {
-          if (key in schema.properties!) {
-            // XXX: What if this placeholder is a Section?
-            console.log(`skipping "${key}" because it is already defined`)
-          } else {
-            transform({
-              uiSchema,
-              schema,
-              jsonKey: key,
-              jsonObj: value,
-              uiControl: {
-                type: 'Control',  
-                scope: `#/properties/${key}`,
-                label: getLabel(key),
-                rule: {
-                  effect: 'ENABLE',
-                  condition: {
-                    scope: uiControl!.scope,
-                    schema: {
-                      const: true
-                    }
+        if (key !== 'type' && key !== 'items' && key !== 'title') {
+          // XXX: Making assumptions that this will work with variable depth. Test it!
+          schema.dependencies[jsonKey] = {
+            oneOf: [
+              {
+                required: [],
+                properties: {
+                  [key]: value,
+                  [jsonKey]: {
+                    enum: [
+                      true
+                    ]
                   }
                 }
               }
-            })
-            schema.properties[key] = value
+            ]
           }
+          transform({
+            uiSchema,
+            schema,
+            jsonKey: key,
+            jsonObj: schema.dependencies[jsonKey].oneOf[0].properties[key],
+            addToUiOrder: true,
+          })
           delete jsonObj[key]
         }
       })
@@ -120,11 +119,11 @@ export function getSchemas({ buffer, title, description } : getSchemaInput) {
     type: 'object',
     required: [],
     properties: {},
-  };
+    dependencies: {}
+  }
 
   let uiSchema = {
-    "type": "VerticalLayout",
-    "elements": []
+    'ui:order': []
   }
 
   let tags = getTags(buffer)
@@ -138,11 +137,7 @@ export function getSchemas({ buffer, title, description } : getSchemaInput) {
         schema,
         jsonKey: key,
         jsonObj: value,
-        uiControl: {
-          type: 'Control',  
-          scope: `#/properties/${key}`,
-          label: getLabel(key)
-        }
+        addToUiOrder: true,
       })
     }
   }

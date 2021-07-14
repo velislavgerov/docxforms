@@ -12,69 +12,41 @@ export default function Home() {
         <title>.docxforms</title>
         <meta name="description" content="Create web forms to fill Microsoft Word documents" />
         <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="//static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css" />
       </Head>
-
-      <>
-        {!session && <>
-          Not signed in <br/>
-          <button onClick={() => signIn()}>Sign in</button>
-        </>}
-        {session && <>
-          Signed in as {session.user!.email} <br/>
-          <button onClick={() => signOut()}>Sign out</button>
-        </>}
-      </>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
           <span>.docx</span>forms
         </h1>
 
-        <p className={styles.description}>
-        Create web forms to fill Microsoft Word documents
-        </p>
+        {!session ? (
+          <p>Please sign in to get started</p>
+        ): (
+          <p>Signed in as {session.user!.email}</p>
+        )}
 
         <div className={styles.grid}>
-          <Link href="/register">
-            <a className={styles.card}>
-              <h2>Register &rarr;</h2>
-              <p>Create an account to get started.</p>
-            </a>
-          </Link>
-
-          <Link href="/login">
-            <a className={styles.card}>
-              <h2>Login &rarr;</h2>
-              <p>If you already have an account.</p>
-            </a>
-          </Link>
-
-          <Link href="/examples">
-            <a className={styles.card}>
-              <h2>Explore &rarr;</h2>
-              <p>See example use cases.</p>
-            </a>
-          </Link>
-
-          <Link href="/pricing">
-            <a className={styles.card}>
-              <h2>Pricing &rarr;</h2>
-              <p>
-                Check out our offering.
-              </p>
-            </a>
-          </Link>
+          {!session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
+          {session && <div className="btn-group"> 
+            <Link href="/documents">
+              <a type="button" className="btn btn-outline-primary">Documents</a>
+            </Link>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => signOut()}>Sign out</button>
+          </div>}
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://gerov.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          &copy;2021, gerov.dev
-        </a>
+      <footer className="footer mt-auto py-3">
+        <div className="container">
+          <a
+            href="https://gerov.dev"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="text-muted">&copy;2021, gerov.dev</span>
+          </a>
+        </div>
       </footer>
     </div>
   )

@@ -79,8 +79,8 @@ model DocumentTemplate {
 model Form {
   id                 String   @id @default(cuid())
   documentTemplateId String
-  schemaJson         Json
-  formJson           Json
+  schema             Json
+  uiSchema           Json
   userId             String
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

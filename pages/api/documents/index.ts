@@ -101,8 +101,8 @@ export default async function protectedHandler(
         const form = await prisma.form.create({
           data: {
             documentTemplateId: documentTemplate.id,
-            schemaJson: schema as Prisma.JsonObject,
-            formJson: uiSchema as Prisma.JsonObject,
+            schema: schema as Prisma.JsonObject,
+            uiSchema: uiSchema as Prisma.JsonObject,
             userId: session.userId
           }
         })

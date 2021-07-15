@@ -16,6 +16,8 @@ export interface FormBuilderProps {
   schema: string,
   uiSchema: string,
   onUpdate: Function,
+  onDelete: Function,
+  onOpen: Function,
 }
 
 export default function FormBuilder(props: FormBuilderProps) {
@@ -24,9 +26,17 @@ export default function FormBuilder(props: FormBuilderProps) {
     schema: '{}',
     uiSchema: '{}',
   })
-
+  
+  const handleOpen = () => {
+    props.onOpen();
+  }
+  
   const handleUpdate = () => {
     props.onUpdate({ schema: state.schema, uiSchema: state.uiSchema });
+  }
+  
+  const handleDelete = () => {
+    props.onDelete();
   }
 
   useEffect(() => {
@@ -37,22 +47,23 @@ export default function FormBuilder(props: FormBuilderProps) {
   }, [])
 
   return (
-    <div className="container">
-      <div className="row">
-        <div className="col">
-          <Form
-            schema={JSON.parse(state.schema)}
-            uiSchema={JSON.parse(state.uiSchema)}
-          />
-        </div>
-        <div className="col">
+    <>
+      <div className="row mt-2">
+        <div className="col-8 btn-group">
+          <button type="button" className="btn btn-light" onClick={handleOpen}>Open</button>
           <button
             type="button"
-            className="btn btn-primary btn-lg"
+            className="btn btn-primary"
             onClick={handleUpdate}
           >
-            {'Update'}
+            {'Save'}
           </button>
+          <button type="button" className="btn btn-dark" onClick={handleDelete}>Delete</button>
+        </div>
+      </div>
+      <div className="row mt-2">
+        <div className="col-8">
+          <h5>Form Builder</h5>
           <RJSFFormBuilder
             schema={state.schema}
             uischema={state.uiSchema}
@@ -64,7 +75,18 @@ export default function FormBuilder(props: FormBuilderProps) {
             }}
           />
         </div>
+        <div className="col">
+          <h5>Live Preview</h5>
+          <div className="card sticky-top">
+            <div className="card-body">
+              <Form
+                schema={JSON.parse(state.schema)}
+                uiSchema={JSON.parse(state.uiSchema)}
+              />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

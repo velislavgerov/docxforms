@@ -14,3 +14,32 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.formHead-0-2-2 {
+  width: auto !important;
+  background-color: var(--bs-light) !important;
+}
+
+.formBuilder-0-2-1 .alert {
+  width: auto !important;
+}
+
+.formBody-0-2-3 .card-container {
+  width: auto !important;
+}
+
+.formBody-0-2-1 .card-container {
+  width: auto !important;
+}
+
+.formBody-0-2-3 .card-container {
+  border: 1px solid gray !important;
+}
+
+.formBody-0-2-3 .card-dependent {
+  border: 1px dashed gray !important;
+}
+
+.formHead-0-2-2 div {
+  width: 100% !important;
+}

@@ -6,6 +6,7 @@ import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
 import { DocumentTemplate } from '@prisma/client'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 export default function Documents () {
   const router = useRouter()
@@ -96,12 +97,15 @@ export default function Documents () {
   // If session exists, display content
   return (
     <div className="container">
-      <h1 className="display-4">Documents</h1>
+      <h1 className="display-4">
+        <Link href="/"><a type="button" className="btn btn-link">&#8592;</a></Link>
+        {'Documents'}
+      </h1>
       <p>{content || "\u00a0"}</p>
-      <form className="input-group" onSubmit={submitForm}>
+      {content && <form className="input-group" onSubmit={submitForm}>
         <input className="form-control" type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
         <input className="btn btn-outline-secondary" type="submit" value="Upload"/>
-      </form>
+      </form>}
       {documentTemplates != null && 
         (<table className="table">
           <thead>

@@ -17,6 +17,23 @@ export default function Document () {
 
   const { id } = router.query
 
+  const handleView = (id: string) => {
+    router.push(`/f/${id}`)
+  }
+
+  const handleDelete = (id: string) => {
+    axios
+      .delete(`/api/documents/${id}`)
+      .then((res) => {
+        router.push(`/documents`)
+        alert("File Deleted Successfully")
+      })
+      .catch((err) => {
+        console.error(err)
+        alert("File Delete Error")
+      })
+  }
+
   const handleUpdate = ({ id, schema, uiSchema }) => {
     axios
       .patch(`/api/documents/${id}`, { schema, uiSchema })
@@ -50,12 +67,13 @@ export default function Document () {
 
   // If session exists, display content
   return (
-    <>
-      <h1>{documentTemplate?.fileName}</h1>
-      <Link href={`/f/${id}`}>
-        <a>{`/f/${id}`}</a>
-      </Link>
-      {documentTemplate?.forms.length && (
+    <div className="container">
+      <h1 className="display-4">
+        <Link href="/documents"><a type="button" className="btn btn-link">&#8592;</a></Link>
+        {documentTemplate?.fileName}
+      </h1>
+      {documentTemplate?.forms.length && (<>
+        <p>This is protected content. You can access this content because you are signed in.</p>
         <FormBuilder
           schema={documentTemplate.forms[0].schema}
           uiSchema={documentTemplate.forms[0].uiSchema}
@@ -64,8 +82,10 @@ export default function Document () {
             schema,
             uiSchema
           })}
+          onOpen={() => handleView(documentTemplate.id)}
+          onDelete={() => handleDelete(documentTemplate.id)}
         />
-      )}
-    </>
+      </>)}
+    </div>
   )
 }

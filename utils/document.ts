@@ -1,8 +1,8 @@
-import { createCleanLabel, JsonSchema } from "@jsonforms/core";
-
 import PizZip from 'pizzip'
 import Docxtemplater from 'docxtemplater'
 import InspectModule from 'docxtemplater/js/inspect-module'
+
+import startCase from 'lodash.startcase'
 
 import errorHandler from "./error-handler";
 
@@ -110,6 +110,10 @@ const getLabel = (key: string): string => {
   }
 
   return createCleanLabel(key);
+};
+
+export const createCleanLabel = (label: string): string => {
+  return startCase(label.replace('_', ' '));
 };
 
 export function getSchemas({ buffer, title, description } : getSchemaInput) {

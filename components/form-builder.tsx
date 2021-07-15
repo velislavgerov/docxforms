@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { JsonSchema, Layout, UISchemaElement } from '@jsonforms/core';
-import { materialCells, materialRenderers } from '@jsonforms/material-renderers';
-import { JsonForms } from '@jsonforms/react';
-import { Card } from '@material-ui/core';
 
 import { FormBuilder as RJSFFormBuilder } from '@ginkgo-bioworks/react-json-schema-form-builder'
 
 import { withTheme } from '@rjsf/core'
-import { Theme as FluentUITheme } from '@rjsf/fluent-ui'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 
 const Form = withTheme(Bootstrap4Theme)

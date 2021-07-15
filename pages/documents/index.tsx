@@ -102,10 +102,13 @@ export default function Documents () {
         {'Documents'}
       </h1>
       <p>{content || "\u00a0"}</p>
-      {content && <form className="input-group" onSubmit={submitForm}>
-        <input className="form-control" type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
-        <input className="btn btn-outline-secondary" type="submit" value="Upload"/>
-      </form>}
+      {content && <> 
+        <p>To get started you can <a href="https://drive.google.com/file/d/1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr/view">preview</a> or <a href="https://drive.google.com/uc?export=download&id=1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr">download</a> the getting started template .docx file.</p>
+        <form className="input-group" onSubmit={submitForm}>
+          <input className="form-control" type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+          <input className="btn btn-outline-secondary" type="submit" value="Upload"/>
+        </form>
+      </>}
       {documentTemplates != null && 
         (<table className="table">
           <thead>

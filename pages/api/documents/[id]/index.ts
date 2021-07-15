@@ -59,11 +59,11 @@ export default async function protectedHandler(
 
         form = await prisma.form.update({
           where: {
-            id: form.id,
+            id: form!.id,
           },
           data: {
-            schema: JSON.parse(body.schema) as Prisma.JsonObject,
-            uiSchema: JSON.parse(body.uiSchema) as Prisma.JsonObject,
+            schema: JSON.parse(body.schema),
+            uiSchema: JSON.parse(body.uiSchema),
           }
         })
         console.log('updated form', form);

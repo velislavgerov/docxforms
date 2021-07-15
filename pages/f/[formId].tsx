@@ -7,10 +7,18 @@ import prisma from '../../lib/prisma'
 import { useRouter } from 'next/router'
 import { withTheme } from '@rjsf/core';
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
+import { Context } from 'docx-templates/lib/types'
+import { GetServerSidePropsContext } from 'next'
 
 const Form = withTheme(Bootstrap4Theme)
 
-export default function Document (props) {
+export interface DocumentProps {
+  id: string
+  schema: object
+  uiSchema: object 
+}
+
+export default function Document (props: DocumentProps) {
   const router = useRouter()
   const [ session, loading ] = useSession()
   const [data, setData] = useState()
@@ -70,8 +78,9 @@ export default function Document (props) {
   )
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: any) {
   const { params: { formId } } = context
+
   const documentTemplate = await prisma.documentTemplate.findUnique({
     where: {
       id: formId,
@@ -84,9 +93,9 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      id: documentTemplate.id,
-      schema: documentTemplate.forms[0].schema,
-      uiSchema: documentTemplate.forms[0].uiSchema,
+      id: documentTemplate!.id,
+      schema: documentTemplate!.forms[0].schema,
+      uiSchema: documentTemplate!.forms[0].uiSchema,
     },
   }
 }

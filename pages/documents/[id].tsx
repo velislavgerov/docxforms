@@ -13,7 +13,7 @@ import FormBuilder from '../../components/form-builder'
 export default function Document () {
   const router = useRouter()
   const [ session, loading ] = useSession()
-  const [ documentTemplate, setDocumentTemplate ] = useState<null | DocumentTemplate>()
+  const [ documentTemplate, setDocumentTemplate ] = useState<null | any>()
 
   const { id } = router.query
 
@@ -34,7 +34,7 @@ export default function Document () {
       })
   }
 
-  const handleUpdate = ({ id, schema, uiSchema }) => {
+  const handleUpdate = ({ id, schema, uiSchema } : { id: string, schema: object, uiSchema: object}) => {
     axios
       .patch(`/api/documents/${id}`, { schema, uiSchema })
       .then((res) => {
@@ -70,14 +70,14 @@ export default function Document () {
     <div className="container">
       <h1 className="display-4">
         <Link href="/documents"><a type="button" className="btn btn-link">&#8592;</a></Link>
-        {documentTemplate?.fileName}
+        {documentTemplate && documentTemplate.fileName}
       </h1>
-      {documentTemplate?.forms.length && (<>
+      {documentTemplate && (<>
         <p>This is protected content. You can access this content because you are signed in.</p>
         <FormBuilder
           schema={documentTemplate.forms[0].schema}
           uiSchema={documentTemplate.forms[0].uiSchema}
-          onUpdate={({ schema, uiSchema }) => handleUpdate({
+          onUpdate={({ schema, uiSchema }: { schema: object, uiSchema: object }) => handleUpdate({
             id: documentTemplate.id,
             schema,
             uiSchema

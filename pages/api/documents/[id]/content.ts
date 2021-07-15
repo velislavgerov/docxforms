@@ -1,4 +1,3 @@
-import PizZip from 'pizzip'
 import Docxtemplater from "docxtemplater";
 import type { NextApiRequest, NextApiResponse } from "next"
 import { getSession } from "next-auth/client"
@@ -6,6 +5,8 @@ import { getSession } from "next-auth/client"
 import prisma from '../../../../lib/prisma'
 import errorHandler from "../../../../utils/error-handler";
 import formidable from 'formidable';
+
+const PizZip = require('pizzip')
 
 export const config = {
   api: {
@@ -56,7 +57,7 @@ export default async function protectedHandler(
           },
         })
 
-        const zip = new PizZip(documentTemplate.file);
+        const zip = new PizZip(documentTemplate!.file);
         let doc;
         try {
           doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
@@ -64,6 +65,8 @@ export default async function protectedHandler(
           // Catch compilation errors (errors caused by the compilation of the template: misplaced tags)
           errorHandler(error);
         }
+
+        doc = doc as Docxtemplater
 
         //set the templateVariables
         doc.setData(data.fields);
@@ -80,8 +83,8 @@ export default async function protectedHandler(
         var buf = doc.getZip()
           .generate({type: 'nodebuffer'});
 
-        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate.fileName);
-        res.setHeader("Content-Type", documentTemplate.fileType);
+        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
+        res.setHeader("Content-Type", documentTemplate!.fileType);
         res.send(buf)
       } catch (error) {
         console.error(error)

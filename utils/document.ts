@@ -1,10 +1,10 @@
-import PizZip from 'pizzip'
 import Docxtemplater from 'docxtemplater'
-import InspectModule from 'docxtemplater/js/inspect-module'
-
-import startCase from 'lodash.startcase'
 
 import errorHandler from "./error-handler";
+
+const InspectModule = require('docxtemplater/js/inspect-module')
+const PizZip = require('pizzip')
+const startCase = require('lodash.startcase')
 
 interface getSchemaInput {
   buffer: Buffer
@@ -31,10 +31,10 @@ export function getTags (buffer: Buffer) {
 }
 
 function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
-  schema: JsonSchema,
+  schema: any,
   jsonKey: string,
   jsonObj: any,
-  uiSchema: object,
+  uiSchema: any,
   addToUiOrder?: boolean
 }) {
   if( jsonObj !== null && typeof jsonObj == "object" ) {
@@ -117,7 +117,7 @@ export const createCleanLabel = (label: string): string => {
 };
 
 export function getSchemas({ buffer, title, description } : getSchemaInput) {
-  let schema: JsonSchema = {
+  let schema: any = {
     title,
     description,
     type: 'object',

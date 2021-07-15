@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { FormBuilder as RJSFFormBuilder } from '@ginkgo-bioworks/react-json-schema-form-builder'
-
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 
 const Form = withTheme(Bootstrap4Theme)
+
+const { FormBuilder: RJSFFormBuilder } = require('@ginkgo-bioworks/react-json-schema-form-builder')
 
 export interface FormBuilderProps {
   schema: string,
@@ -16,7 +16,6 @@ export interface FormBuilderProps {
 }
 
 export default function FormBuilder(props: FormBuilderProps) {
-  const [ data, setData ] = useState();
   const [ state, setState ] = useState({
     schema: '{}',
     uiSchema: '{}',

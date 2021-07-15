@@ -1,6 +1,7 @@
 // The error object contains additional information when logged with JSON.stringify (it contains a properties object containing all suberrors).
 export function replaceErrors(key: any, value: any) {
   if (value instanceof Error) {
+    value = value as any;
       return Object.getOwnPropertyNames(value).reduce(function(error: any, key: any) {
           error[key] = value[key];
           return error;
@@ -9,11 +10,11 @@ export function replaceErrors(key: any, value: any) {
   return value;
 }
 
-export default function errorHandler(error) {
+export default function errorHandler(error: any) {
   console.log(JSON.stringify({error: error}, replaceErrors));
 
   if (error.properties && error.properties.errors instanceof Array) {
-      const errorMessages = error.properties.errors.map(function (error) {
+      const errorMessages = error.properties.errors.map(function (error: any) {
           return error.properties.explanation;
       }).join("\n");
       console.log('errorMessages', errorMessages);

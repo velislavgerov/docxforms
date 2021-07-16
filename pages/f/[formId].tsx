@@ -5,10 +5,10 @@ import axios from 'axios'
 import prisma from '../../lib/prisma'
 
 import { useRouter } from 'next/router'
-import { withTheme } from '@rjsf/core';
+import Link from 'next/link'
+
+import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
-import { Context } from 'docx-templates/lib/types'
-import { GetServerSidePropsContext } from 'next'
 
 const Form = withTheme(Bootstrap4Theme)
 
@@ -21,18 +21,17 @@ export interface DocumentProps {
 export default function Document (props: DocumentProps) {
   const router = useRouter()
   const [ session, loading ] = useSession()
-  const [data, setData] = useState()
 
   const { formId } = router.query
 
-  const handleSubmit = async () => {
-    if (formId != null && data != null) {
-      console.log('data', data)
+  const handleSubmit = async (data: { formData: any }) => {
+    const { formData } = data;
+    if (formId != null) {
       axios({
           method: 'POST',
           url: `/api/f/${formId}`,
           responseType: 'blob',
-          data
+          data: formData
         })
         .then((res) => {
           console.log(res)
@@ -66,12 +65,17 @@ export default function Document (props: DocumentProps) {
   if (typeof window !== 'undefined' && loading) return null
 
   return (
-    <div className="container">
+    <div className="container py-4">
+      <header className="pb-3 mb-4 border-bottom">
+        <Link href="/">
+          <a className="d-flex align-items-center text-dark text-decoration-none">
+            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
+          </a>
+        </Link>
+      </header>
       <Form
         schema={props.schema}
         uiSchema={props.uiSchema}
-        formData={data}
-        onChange={e => setData(e.formData)}
         onSubmit={handleSubmit}
       />
     </div>

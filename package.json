@@ -1,6 +1,6 @@
 {
   "name": "docxforms",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Create web forms from .dotx files",
   "private": true,
   "scripts": {

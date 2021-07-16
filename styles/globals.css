@@ -1,3 +1,4 @@
+/* Override react-jsonschema-form-builder styles*/
 .formHead-0-2-2 {
   width: auto !important;
   background-color: var(--bs-light) !important;
@@ -16,13 +17,14 @@
 }
 
 .formBody-0-2-3 .card-container {
-  border: 1px solid gray !important;
+  border: 1px solid var(--bs-gray) !important;
 }
 
 .formBody-0-2-3 .card-dependent {
-  border: 1px dashed gray !important;
+  border: 1px dashed var(--bs-gray) !important;
 }
 
 .formHead-0-2-2 div {
   width: 100% !important;
 }
+/* End of override*/

@@ -67,14 +67,30 @@ export default function Document () {
 
   // If session exists, display content
   return (
-    <div className="container">
-      <h1 className="display-4">
-        <Link href="/documents"><a type="button" className="btn btn-link">&#8592;</a></Link>
+    <div className="container py-4">
+      <header className="pb-3 mb-4 border-bottom">
+        <Link href="/">
+          <a className="d-flex align-items-center text-dark text-decoration-none">
+            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
+          </a>
+        </Link>
+      </header>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
+          <li className="breadcrumb-item active"><Link href="/documents"><a>Documents</a></Link></li>
+          <li className="breadcrumb-item active" aria-current="page">
+            {!documentTemplate && 'Loading...'}
+            {documentTemplate && documentTemplate.fileName}
+          </li>
+        </ol>
+      </nav>
+      <h1 className="display-5">
         {documentTemplate && documentTemplate.fileName}
       </h1>
       {documentTemplate && (<>
-        <p>This is protected content. You can access this content because you are signed in.</p>
         <FormBuilder
+          formId={documentTemplate.id}
           schema={documentTemplate.forms[0].schema}
           uiSchema={documentTemplate.forms[0].uiSchema}
           onUpdate={({ schema, uiSchema }: { schema: object, uiSchema: object }) => handleUpdate({

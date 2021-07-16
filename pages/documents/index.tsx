@@ -12,7 +12,6 @@ export default function Documents () {
   const router = useRouter()
   const [ session, loading ] = useSession()
   const [ content , setContent ] = useState()
-  const [ selectedFile, setSelectedFile ] = useState<null | File>(null);
   const [ documentTemplates, setDocumentTemplates ] = useState<[] | [doc: DocumentTemplate]>([]);
 
   const fetchDocuments = async () => {
@@ -34,18 +33,10 @@ export default function Documents () {
   },[session])
 
   const handleFileInput = (e: SyntheticEvent) => {
-    const target = e.target as HTMLInputElement
-    setSelectedFile(target.files![0])
-  }
-
-  const submitForm = (e: FormEvent) => {
     e.preventDefault()
 
-    if (selectedFile == null) {
-      alert("Please select file")
-      return
-    }
-
+    const target = e.target as HTMLInputElement
+    const selectedFile = target.files![0]
     const formData = new FormData()
     formData.append("name", selectedFile.name)
     formData.append("file", selectedFile)
@@ -53,18 +44,13 @@ export default function Documents () {
     axios
       .post('/api/documents', formData)
       .then((res) => {
-        const { id } = res.data.data;
-        const form = e.target as HTMLFormElement
-        const fileInput = form.querySelector('input[type="file"]')! as HTMLInputElement
-        fileInput.value = ''
-        if (id) {
-          handleEdit(id)
-          return
-        }
-        fetchDocuments()
-        alert("File Upload Success")
+        const { id } = res.data.data
+        handleEdit(id)
       })
-      .catch((err) => alert("File Upload Error"))
+      .catch((err) => {
+        console.log(err)
+        alert("File Upload Error")
+      })
   }
 
   const handleView = (id: string) => {
@@ -96,49 +82,69 @@ export default function Documents () {
 
   // If session exists, display content
   return (
-    <div className="container">
-      <h1 className="display-4">
-        <Link href="/"><a type="button" className="btn btn-link">&#8592;</a></Link>
-        {'Documents'}
-      </h1>
-      <p>{content || "\u00a0"}</p>
-      {content && <> 
-        <p>To get started you can <a href="https://drive.google.com/file/d/1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr/view">preview</a> or <a href="https://drive.google.com/uc?export=download&id=1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr">download</a> the getting started template .docx file.</p>
-        <form className="input-group" onSubmit={submitForm}>
-          <input className="form-control" type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
-          <input className="btn btn-outline-secondary" type="submit" value="Upload"/>
-        </form>
-      </>}
-      {documentTemplates != null && 
-        (<table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Created at</th>
-              <th scope="col">Updated at</th>
-              <th scope="col" colSpan={3}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-          {documentTemplates.map((doc) => (
-            <tr key={doc.id}>
-              <td scope="row">{doc.fileName}</td>
-              <td>{doc.createdAt}</td>
-              <td>{doc.updatedAt}</td>
-              <td>
-                <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc.id)}>Open</button>
-              </td>
-              <td>
-                <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc.id)}>Edit</button>
-              </td>
-              <td>
-                <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-          </tbody>
-        </table>)
-      }
+    <div className="container py-4">
+      <header className="pb-3 mb-4 border-bottom">
+        <Link href="/">
+          <a className="d-flex align-items-center text-dark text-decoration-none">
+            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
+          </a>
+        </Link>
+      </header>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
+          <li className="breadcrumb-item active" aria-current="page">Documents</li>
+        </ol>
+      </nav>
+      <div className="pb-2">
+        <h1 className="display-5">
+          {'Documents'}
+        </h1>
+        {content && <> 
+          <label htmlFor="docxFile" className="form-label">Upload your .docx template to get a web form.</label>
+          <input className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
+        </>}
+      </div>
+      {(documentTemplates != null && documentTemplates.length) ? 
+        (<div className="table-responsive">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created at</th>
+                <th scope="col">Updated at</th>
+                <th scope="col" colSpan={3}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {documentTemplates.map((doc) => (
+              <tr key={doc.id}>
+                <td scope="row">
+                  <Link href={`/documents/${doc.id}`}>
+                    <a>{doc.fileName}</a>
+                  </Link>
+                </td>
+                <td>{doc.createdAt}</td>
+                <td>{doc.updatedAt}</td>
+                <td>
+                  <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc.id)}>Open</button>
+                </td>
+                <td>
+                  <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc.id)}>Edit</button>
+                </td>
+                <td>
+                  <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc.id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        </div>
+      ) : ( 
+        <div className="alert alert-light" role="alert">
+          No files uploaded. To get started please select a .docx!
+        </div>
+      )}
     </div>
   )
 }

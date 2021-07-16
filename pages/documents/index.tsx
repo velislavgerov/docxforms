@@ -7,6 +7,7 @@ import AccessDenied from '../../components/access-denied'
 import { DocumentTemplate } from '@prisma/client'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
+import Header from '../../components/header'
 
 export default function Documents () {
   const router = useRouter()
@@ -82,14 +83,8 @@ export default function Documents () {
 
   // If session exists, display content
   return (
-    <div className="container py-4">
-      <header className="pb-3 mb-4 border-bottom">
-        <Link href="/">
-          <a className="d-flex align-items-center text-dark text-decoration-none">
-            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
-          </a>
-        </Link>
-      </header>
+    <div className="container">
+      <Header/>
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>

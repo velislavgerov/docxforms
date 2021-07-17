@@ -29,6 +29,28 @@ export default async function protectedHandler(
   }
 
   switch(method) {
+    case 'GET':
+      try {
+        const documentTemplate = await prisma.documentTemplate.findUnique({
+          where: {
+            id: query.id as string,
+          },
+          select: {
+            file: true,
+            fileName: true,
+            fileType: true,
+          },
+        })
+
+        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
+        res.setHeader("Content-Type", documentTemplate!.fileType);
+        res.send(documentTemplate!.file)
+      } catch (error) {
+        console.error(error)
+        return res.status(400).json({
+          success: false,
+        })
+      }
     case 'POST':
       try {
         const data: FormidableData = await new Promise((resolve, reject) => {

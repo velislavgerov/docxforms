@@ -54,6 +54,39 @@ export default function Documents () {
       })
   }
 
+  const handleDownload = (id: string) => {
+    axios({
+        method: 'GET',
+        url: `/api/documents/${id}/content`,
+        responseType: 'blob',
+      })
+      .then((res) => {
+        console.log(res)
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+
+        let filename = ''
+        const disposition = res.headers['content-disposition'];
+        // source: https://stackoverflow.com/a/40940790
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+          var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+          var matches = filenameRegex.exec(disposition)
+          if (matches != null && matches[1]) { 
+            filename = matches[1].replace(/['"]/g, '')
+          }
+        }
+
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err)
+        alert("Failed to get document content")
+      })
+  }
+
   const handleView = (id: string) => {
     router.push(`/f/${id}`)
   }
@@ -126,6 +159,9 @@ export default function Documents () {
                 </td>
                 <td>
                   <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc.id)}>Edit</button>
+                </td>
+                <td>
+                  <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc.id)}>Download</button>
                 </td>
                 <td>
                   <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc.id)}>Delete</button>

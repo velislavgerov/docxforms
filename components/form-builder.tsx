@@ -35,6 +35,39 @@ export default function FormBuilder(props: FormBuilderProps) {
     props.onDelete();
   }
 
+  const handleDownload = () => {
+    axios({
+        method: 'GET',
+        url: `/api/documents/${props.formId}/content`,
+        responseType: 'blob',
+      })
+      .then((res) => {
+        console.log(res)
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+
+        let filename = ''
+        const disposition = res.headers['content-disposition'];
+        // source: https://stackoverflow.com/a/40940790
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+          var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+          var matches = filenameRegex.exec(disposition)
+          if (matches != null && matches[1]) { 
+            filename = matches[1].replace(/['"]/g, '')
+          }
+        }
+
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err)
+        alert("Failed to get document content")
+      })
+  }
+
   const handleSubmit = async (data: { formData: any; }) => {
     const { formData } = data
     axios({
@@ -91,6 +124,7 @@ export default function FormBuilder(props: FormBuilderProps) {
             </button>
             <button type="button" className="btn btn-light flex-grow-1" onClick={handleOpen}>Open</button>
             <button type="button" className="btn btn-warning flex-grow-1">Edit</button>
+            <button type="button" className="btn btn-warning flex-grow-1" onClick={handleDownload}>Download</button>
             <button type="button" className="btn btn-dark flex-grow-1" onClick={handleDelete}>Delete</button>
           </div>
         </div>

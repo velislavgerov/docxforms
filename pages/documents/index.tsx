@@ -54,8 +54,29 @@ export default function Documents () {
       })
   }
 
+  const handleView = (id: string) => {
+    router.push(`/f/${id}`)
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/documents/${id}`)
+  }
+
+  const handleDelete = (id: string) => {
+    return axios
+      .delete(`/api/documents/${id}`)
+      .then((res) => {
+        fetchDocuments()
+        alert("File Deleted Successfully")
+      })
+      .catch((err) => {
+        console.error(err)
+        alert("File Delete Error")
+      })
+  }
+
   const handleDownload = (id: string) => {
-    axios({
+    return axios({
         method: 'GET',
         url: `/api/documents/${id}/content`,
         responseType: 'blob',
@@ -84,27 +105,6 @@ export default function Documents () {
       .catch((err) => {
         console.log(err)
         alert("Failed to get document content")
-      })
-  }
-
-  const handleView = (id: string) => {
-    router.push(`/f/${id}`)
-  }
-
-  const handleEdit = (id: string) => {
-    router.push(`/documents/${id}`)
-  }
-
-  const handleDelete = (id: string) => {
-    axios
-      .delete(`/api/documents/${id}`)
-      .then((res) => {
-        fetchDocuments()
-        alert("File Deleted Successfully")
-      })
-      .catch((err) => {
-        console.error(err)
-        alert("File Delete Error")
       })
   }
 

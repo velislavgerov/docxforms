@@ -44,7 +44,7 @@ export default async function protectedHandler(
 
         res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
         res.setHeader("Content-Type", documentTemplate!.fileType);
-        res.send(documentTemplate!.file)
+        return res.send(documentTemplate!.file)
       } catch (error) {
         console.error(error)
         return res.status(400).json({
@@ -107,7 +107,7 @@ export default async function protectedHandler(
 
         res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
         res.setHeader("Content-Type", documentTemplate!.fileType);
-        res.send(buf)
+        return res.send(buf)
       } catch (error) {
         console.error(error)
         return res.status(400).json({

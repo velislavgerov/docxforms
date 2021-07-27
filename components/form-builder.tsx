@@ -36,7 +36,7 @@ export default function FormBuilder(props: FormBuilderProps) {
   }
 
   const handleDownload = () => {
-    axios({
+    return axios({
         method: 'GET',
         url: `/api/documents/${props.formId}/content`,
         responseType: 'blob',
@@ -70,7 +70,7 @@ export default function FormBuilder(props: FormBuilderProps) {
 
   const handleSubmit = async (data: { formData: any; }) => {
     const { formData } = data
-    axios({
+    return axios({
         method: 'POST',
         url: `/api/f/${props.formId}`,
         responseType: 'blob',

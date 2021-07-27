@@ -4,7 +4,6 @@ import axios from 'axios'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-import { DocumentTemplate } from '@prisma/client'
 import { useRouter } from 'next/router'
 
 import Link from 'next/link'
@@ -23,7 +22,7 @@ export default function Document () {
   }
 
   const handleDelete = (id: string) => {
-    axios
+    return axios
       .delete(`/api/documents/${id}`)
       .then((res) => {
         router.push(`/documents`)
@@ -36,7 +35,7 @@ export default function Document () {
   }
 
   const handleUpdate = ({ id, schema, uiSchema } : { id: string, schema: object, uiSchema: object}) => {
-    axios
+    return axios
       .patch(`/api/documents/${id}`, { schema, uiSchema })
       .then((res) => {
         alert("Document Update Success")

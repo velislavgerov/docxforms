@@ -42,7 +42,7 @@ export default async function protectedHandler(
           },
         })
 
-        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
+        res.setHeader("Content-disposition", `attachment; filename=${documentTemplate!.fileName}`);
         res.setHeader("Content-Type", documentTemplate!.fileType);
         return res.send(documentTemplate!.file)
       } catch (error) {
@@ -90,7 +90,7 @@ export default async function protectedHandler(
 
         doc = doc as Docxtemplater
 
-        //set the templateVariables
+        // set the templateVariables
         doc.setData(data.fields);
 
         try {
@@ -102,10 +102,23 @@ export default async function protectedHandler(
             errorHandler(error);
         }
 
-        var buf = doc.getZip()
+        const buf = doc.getZip()
           .generate({type: 'nodebuffer'});
 
-        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName);
+        await prisma.submission.create({
+          data: {
+            documentTemplateId: documentTemplate!.id,
+            formId: documentTemplate!.forms[0]!.id,
+            userId: session.userId,
+            content: data.fields,
+            fileName: documentTemplate!.fileName,
+            fileType: documentTemplate!.fileType,
+            fileSize: Buffer.byteLength(buf),
+            file: buf,
+          }
+        })
+
+        res.setHeader("Content-disposition", `attachment; filename=${documentTemplate!.fileName}`);
         res.setHeader("Content-Type", documentTemplate!.fileType);
         return res.send(buf)
       } catch (error) {

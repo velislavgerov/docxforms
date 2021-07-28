@@ -1,11 +1,11 @@
+import React from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
-import styles from '../styles/Home.module.css'
 
 import { signIn, signOut, useSession } from 'next-auth/client'
 
 export default function Home() {
-  const [ session, loading ] = useSession()
+  const [session, loading] = useSession()
 
   return (
     <div className="d-flex flex-column h-100">
@@ -22,24 +22,33 @@ export default function Home() {
               <span className="display-1"><span className="text-primary">.docx</span>forms</span>
             </a>
           </Link>
-          <div className="col-lg-6 mx-auto">
-            <p className="lead mb-4">
-              {!session ? (
-                <p>Please sign in to get started</p>
-              ) : (
-                <p>Signed in as {session.user!.email}</p>
-              )}
-            </p>
-            <div className="gap-2 d-sm-flex justify-content-sm-center">
-            {!session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
-            {session && <>
-              <Link href="/documents" passHref>
-                <button type="button" className="btn btn-outline-primary">Documents</button>
-              </Link>
-              <button type="button" className="btn btn-outline-secondary" onClick={() => signOut()}>Sign out</button>
-            </>}
+          {loading ? (
+            <div className="col-lg-6 mx-auto">
+              <div className="m-4 d-flex justify-content-center">
+                <div className="spinner-border text-primary small" role="status">
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="col-lg-6 mx-auto">
+              <p className="lead mb-4">
+                {!session ? (
+                  <p>Please sign in to get started</p>
+                ) : (
+                  <p>Signed in as {session.user!.email}</p>
+                )}
+              </p>
+              <div className="gap-2 d-sm-flex justify-content-sm-center">
+                {!session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
+                {session && <>
+                  <Link href="/documents" passHref>
+                    <button type="button" className="btn btn-outline-primary">Documents</button>
+                  </Link>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => signOut()}>Sign out</button>
+                </>}
+              </div>
+            </div>)}
         </div>
       </main>
 

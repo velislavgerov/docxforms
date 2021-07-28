@@ -1,47 +1,46 @@
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/client'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/client'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-import { useRouter } from 'next/router'
 
-import Link from 'next/link'
 import FormBuilder from '../../components/form-builder'
 import Header from '../../components/header'
 
-export default function Document () {
+export default function Document() {
   const router = useRouter()
-  const [ session, loading ] = useSession()
-  const [ documentTemplate, setDocumentTemplate ] = useState<null | any>()
+  const [session, loading] = useSession()
+  const [documentTemplate, setDocumentTemplate] = useState<null | any>()
 
   const { id } = router.query
 
-  const handleView = (id: string) => {
-    router.push(`/f/${id}`)
+  const handleView = (targetId: string) => {
+    router.push(`/f/${targetId}`)
   }
 
-  const handleDelete = (id: string) => {
-    return axios
-      .delete(`/api/documents/${id}`)
-      .then((res) => {
-        router.push(`/documents`)
-        alert("File Deleted Successfully")
-      })
-      .catch((err) => {
-        console.error(err)
-        alert("File Delete Error")
-      })
-  }
+  const handleDelete = (targetId: string) => axios
+    .delete(`/api/documents/${targetId}`)
+    .then(() => {
+      router.push(`/documents`)
+      alert("File Deleted Successfully")
+    })
+    .catch((err) => {
+      console.error(err)
+      alert("File Delete Error")
+    })
 
-  const handleUpdate = ({ id, schema, uiSchema } : { id: string, schema: object, uiSchema: object}) => {
-    return axios
-      .patch(`/api/documents/${id}`, { schema, uiSchema })
-      .then((res) => {
-        alert("Document Update Success")
-      })
-      .catch((err) => alert("Document Update Error"))
-  }
+  const handleUpdate = ({ targetId, schema, uiSchema }: { targetId: string, schema: object, uiSchema: object }) => axios
+    .patch(`/api/documents/${targetId}`, { schema, uiSchema })
+    .then(() => {
+      alert("Document Update Success")
+    })
+    .catch((err) => {
+      console.error(err)
+      alert("Document Update Error")
+    })
 
 
   // Fetch content from protected route
@@ -55,7 +54,10 @@ export default function Document () {
             setDocumentTemplate(data)
           }
         })
-        .catch((err) => alert("Failed to load document"))
+        .catch((err) => {
+          console.log(err)
+          alert("Failed to load document")
+        })
     }
   }, [session, id])
 
@@ -63,7 +65,7 @@ export default function Document () {
   if (typeof window !== 'undefined' && loading) return null
 
   // If no session exists, display access denied message
-  if (!session) { return  <Layout><AccessDenied/></Layout> }
+  if (!session) { return <Layout><AccessDenied /></Layout> }
 
   // If session exists, display content
   return (
@@ -88,7 +90,7 @@ export default function Document () {
           schema={documentTemplate.forms[0].schema}
           uiSchema={documentTemplate.forms[0].uiSchema}
           onUpdate={({ schema, uiSchema }: { schema: object, uiSchema: object }) => handleUpdate({
-            id: documentTemplate.id,
+            targetId: documentTemplate.id,
             schema,
             uiSchema
           })}

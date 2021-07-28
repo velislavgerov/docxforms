@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '../styles/globals.css'
 

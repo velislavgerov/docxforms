@@ -60,7 +60,7 @@ export default async function protectedHandler(
 
         doc = doc as Docxtemplater
 
-        //set the templateVariables
+        // set the templateVariables
         doc.setData(data.fields)
 
         try {
@@ -72,12 +72,24 @@ export default async function protectedHandler(
             errorHandler(error);
         }
 
-        var buf = doc.getZip()
+        const buf = doc.getZip()
           .generate({type: 'nodebuffer'})
 
-        res.setHeader("Content-disposition", 'attachment; filename=' + documentTemplate!.fileName)
+        await prisma.submission.create({
+          data: {
+            documentTemplateId: documentTemplate!.id,
+            formId: documentTemplate!.forms[0]!.id,
+            content: data.fields,
+            fileName: documentTemplate!.fileName,
+            fileType: documentTemplate!.fileType,
+            fileSize: Buffer.byteLength(buf),
+            file: buf,
+          }
+        })
+
+        res.setHeader("Content-disposition", `attachment; filename=${documentTemplate!.fileName}`);
         res.setHeader("Content-Type", documentTemplate!.fileType)
-        res.send(buf)
+        return res.send(buf)
       } catch (error) {
         console.error(error)
         return res.status(400).json({

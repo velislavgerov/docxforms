@@ -1,0 +1,631 @@
+openapi: 3.0.3
+info:
+  title: .docxforms - API Spec
+  description: |-
+    OpenAPI 3.0 specification for [https://docxforms.com/api](https://docxforms.com/api).
+    
+    **TODO**
+     - PATCH /document/{documentId}
+     - GET /document/{documentId}/download (downloadUrl)
+     - PUT /document/{documentId}/forms/{formId}
+     - PATCH /forms/{formId}
+     - POST /forms/{formId}/changeVisibility
+     - GET /forms/{formId}/schema (schemaUrl)
+     - GET /forms/{formId}/uiSchema (uiSchemaUrl)
+     - GET /submissions/{submissionId}/formData (formDataUrl)
+     - GET /submissions/{submissionId}/download (downloadUrl)
+     - PATCH /submissions/{submissionId}
+     - POST /submissions/{submissionId}/changeStatus
+      
+    **Work in progress...**
+  termsOfService: 'https://docxforms.com/terms/'
+  contact:
+    email: dev@docxforms.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+paths:
+  '/documents/upload':
+    post:
+      tags:
+        - document
+      summary: Uploads a document
+      description: ''
+      operationId: uploadDocument
+      requestBody:
+        content:
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+  /documents/findByUser:
+    get:
+      tags:
+        - document
+      summary: Finds documents owned by user
+      description: Returns a list of documents owned by the user
+      operationId: findDocumentsByUser
+      parameters:
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+  '/documents/{documentId}':
+    get:
+      tags:
+        - document
+      summary: Find document by id
+      description: Returns a single document
+      operationId: getDocumentById
+      parameters:
+        - name: documentId
+          in: path
+          description: Id of document to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid id supplied
+        '401':
+          description: Not authenticated
+        '404':
+          description: Document not found
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+    delete:
+      tags:
+        - document
+      summary: Deletes a document
+      description: ''
+      operationId: deleteDocument
+      parameters:
+        - name: documentId
+          in: path
+          description: Document id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Invalid document value
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+  '/documents/{documentId}/forms':
+    post:
+      tags:
+        - document
+      summary: Creates a form for the document
+      description: ''
+      operationId: createForm
+      parameters:
+        - name: documentId
+          in: path
+          description: Id of document for which the form is created
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                schema:
+                  $ref: '#/components/schemas/schema'
+                uiSchema:
+                  $ref: '#/components/schemas/uiSchema'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'read:forms'
+            - 'write:submissions'
+            - 'read:submissions'            
+  /forms/findByDocument:
+    get:
+      tags:
+        - form
+      summary: Finds forms by document id
+      description: Returns a list of forms by document id
+      operationId: findFormsByDocumentId
+      parameters:
+        - name: documentId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Id of document for which the form was created.
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Form'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'          
+  '/forms/{formId}':
+    get:
+      tags:
+        - form
+      summary: Find form by id
+      description: Returns a single form
+      operationId: getFormById
+      parameters:
+        - name: formId
+          in: path
+          description: Id of document to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        '400':
+          description: Invalid id supplied
+        '404':
+          description: Document not found
+      security:
+        - docxforms_auth:
+            - 'write:forms'
+            - 'read:forms'
+    delete:
+      tags:
+        - form
+      summary: Deletes a form
+      description: ''
+      operationId: deleteForm
+      parameters:
+        - name: formId
+          in: path
+          description: Form id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Invalid form value
+      security:
+        - docxforms_auth:
+            - 'write:forms'
+            - 'read:forms'
+  '/forms/{formId}/submissions':
+    post:
+      tags:
+        - form
+      summary: Creates a submission
+      description: ''
+      operationId: createSubmission
+      parameters:
+        - name: formId
+          in: path
+          description: Id of form for which the submission is made
+          required: true
+          schema:
+            type: string      
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/formData'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'read:forms'
+            - 'write:submissions'
+            - 'read:submissions'
+  /submissions/findByDocument:
+    get:
+      tags:
+        - submission
+      summary: Finds submissions by document id
+      description: Returns a list of submissions by document id
+      operationId: findSubmissionsByDocumentId
+      parameters:
+        - name: documentId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Id of document for which the submissions were made.
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'
+  /submissions/findByForm:
+    get:
+      tags:
+        - submission
+      summary: Finds submissions by form id
+      description: Returns a list of submissions by form id
+      operationId: findSubmissionsByFormId
+      parameters:
+        - name: formId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Id of from from which the submissions were made.
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'
+  /submissions/findByDocumentOwner:
+    get:
+      tags:
+        - submission
+      summary: Finds submissions by document owner id
+      description: Returns a list of submissions by document owner id
+      operationId: findSubmissionsByDocumentOwnerId
+      parameters:
+        - name: documentOwnerId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Id of the user who owns the documents for the submissions.
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Submission'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'
+  /submissions/findBySubmitter:
+    get:
+      tags:
+        - submission
+      summary: Finds submissions by submitter id
+      description: Returns a list of submissions by submitter id
+      operationId: findSubmissionsBySubmitterId
+      parameters:
+        - name: submitterId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Id of the user who made the submissions.
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+        '401':
+          description: Not authenticated
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+  '/submissions/{submissionId}':
+    get:
+      tags:
+        - submission
+      summary: Find submission by id
+      description: Returns a single submission
+      operationId: getSubmissionById
+      parameters:
+        - name: submissionId
+          in: path
+          description: Id of submission to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+        '400':
+          description: Invalid id supplied
+        '404':
+          description: Submission not found
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'  
+    delete:
+      tags:
+        - submission
+      summary: Delete submission by id
+      description: Deletes a single submission
+      operationId: deleteSubmissionById
+      parameters:
+        - name: submissionId
+          in: path
+          description: Submission id to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '400':
+          description: Invalid submission value
+      security:
+        - docxforms_auth:
+            - 'write:submissions'
+            - 'read:submissions'
+components:
+  parameters:
+    offsetParam:  # <-- Arbitrary name for the definition that will be used to refer to it.
+                  # Not necessarily the same as the parameter name.
+      in: query
+      name: offset
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: The number of items to skip before starting to collect the result set.
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 20
+      description: The numbers of items to return.
+  schemas:
+    Document:
+      required:
+        - name
+        - downloadUrl
+      type: object
+      properties:
+        id:
+          type: string
+          example: cjld2cjxh0000qzrmn831i7rn
+        name:
+          type: string
+          example: example.docx
+        downloadUrl:
+          type: string
+          example: https://docxforms.com/documents/cjld2cjxh0000qzrmn831i7rn/download
+    Form:
+      required:
+        - documentId
+        - schema
+        - uiSchema
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          example: cjld2cyuq0000t3rmniod1foy
+        schema:
+          $ref: '#/components/schemas/schema'
+        uiSchema:
+          $ref: '#/components/schemas/uiSchema'
+        visibility:
+          type: string
+          description: form visibility
+          enum:
+            - private
+            - protected
+            - public
+    Submission:
+      required:
+        - name
+        - downloadUrl
+        - formData
+        - status
+      type: object
+      properties:
+        id:
+          type: string
+          example: ckrno6e9v008878lkrdzidue9
+        downloadUrl:
+          type: string
+          example: https://docxforms.com/submissions/ckrno6e9v008878lkrdzidue9/download
+        formData:
+          $ref: '#/components/schemas/formData'
+        status:
+          type: string
+          description: submission status
+          enum:
+            - created
+            - cancelled
+            - verified
+            - accepted
+            - returned
+            - finalized
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    schema:
+      type: object
+      example: '{
+        "title": "A registration form",
+        "description": "A simple form example.",
+        "type": "object",
+        "required": [ 
+          "firstName",
+          "lastName"
+        ],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "title": "First name",
+            "default": "Chuck"
+          },
+          "lastName": {
+            "type": "string",
+            "title": "Last name"
+          },
+          "telephone": {
+            "type": "string",
+            "title": "Telephone",
+            "minLength": 10
+          }
+        }
+      }'
+    uiSchema:
+      type: object
+      example: '{
+        "firstName": {
+          "ui:autofocus": true,
+          "ui:emptyValue": "",
+          "ui:autocomplete": "family-name"
+        },
+        "lastName": {
+          "ui:emptyValue": "",
+          "ui:autocomplete": "given-name"
+        },
+        "age": {
+          "ui:widget": "updown",
+          "ui:title": "Age of person",
+          "ui:description": "(earthian year)"
+        },
+        "bio": {
+          "ui:widget": "textarea"
+        },
+        "password": {
+          "ui:widget": "password",
+          "ui:help": "Hint: Make it strong!"
+        },
+        "date": {
+          "ui:widget": "alt-datetime"
+        },
+        "telephone": {
+          "ui:options": {
+            "inputType": "tel"
+          }
+        }
+      }'
+    formData:
+      type: object
+      example: '{
+        "firstName": "Chuck",
+        "lastName": "Norris",
+        "age": 75,
+        "bio": "Roundhouse kicking asses since 1940",
+        "password": "noneed"
+      }'          
+  securitySchemes:
+    docxforms_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'https://docxforms.com/api/auth/oauth'
+          scopes:
+            'write:documents': modify documents in your account
+            'read:documents': read your documents
+            'write:forms': modify forms in your account
+            'read:forms': read your forms
+            'write:submissions': modify submissions in your account
+            'read:submissions': read your submissions

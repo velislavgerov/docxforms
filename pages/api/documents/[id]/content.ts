@@ -21,12 +21,12 @@ export default async function protectedHandler(
   const session = await getSession({ req })
   const { method, query } = req;
   
-  if (!session) {
+  /*if (!session) {
     return res.status(401).send({
       success: false,
       error: "you must be sign in to view the protected content on this page.",
     })
-  }
+  }*/
 
   switch(method) {
     case 'GET':

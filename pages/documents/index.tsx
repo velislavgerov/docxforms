@@ -1,4 +1,5 @@
 import React, { useState, useEffect, SyntheticEvent } from 'react'
+
 import { useSession } from 'next-auth/client'
 import axios from 'axios'
 import { DocumentTemplate } from '@prisma/client'
@@ -12,17 +13,14 @@ import Header from '../../components/header'
 export default function Documents() {
   const router = useRouter()
   const [session, loading] = useSession()
-  const [content, setContent] = useState()
-  const [documentTemplates, setDocumentTemplates] = useState<[] | [doc: DocumentTemplate]>([]);
+  const [documentTemplates, setDocumentTemplates] = useState<[] | [doc: any]>([]);
 
   const fetchDocuments = async () => {
     if (session) {
       axios
         .get(`/api/documents`)
         .then((res) => {
-          const { content, data } = res.data;
-          if (content) { setContent(content) }
-          if (data) { setDocumentTemplates(data) }
+          setDocumentTemplates(res.data)
         })
         .catch((err) => alert("Failed to load document"))
     }
@@ -45,8 +43,7 @@ export default function Documents() {
     axios
       .post('/api/documents', formData)
       .then((res) => {
-        const { id } = res.data.data
-        handleEdit(id)
+        handleEdit(res.data)
       })
       .catch((err) => {
         console.log(err)
@@ -58,13 +55,13 @@ export default function Documents() {
     router.push(`/f/${id}`)
   }
 
-  const handleEdit = (id: string) => {
-    router.push(`/documents/${id}`)
+  const handleEdit = (doc: any) => {
+    router.push(`/documents/${doc.id}`)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (doc: any) => {
     axios
-      .delete(`/api/documents/${id}`)
+      .delete(doc.links['delete-self'].href)
       .then((res) => {
         fetchDocuments()
         alert("File Deleted Successfully")
@@ -75,10 +72,10 @@ export default function Documents() {
       })
   }
 
-  const handleDownload = (id: string) => {
+  const handleDownload = (doc: any) => {
     axios({
       method: 'GET',
-      url: `/api/documents/${id}/content`,
+      url: doc.fileUrl,
       responseType: 'blob',
     })
       .then((res) => {
@@ -128,10 +125,8 @@ export default function Documents() {
         <h1 className="display-5">
           Documents
         </h1>
-        {content && <>
-          <label htmlFor="docxFile" className="form-label">Upload your .docx template to get a web form.</label>
-          <input className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
-        </>}
+        <label htmlFor="docxFile" className="form-label">Upload your .docx template to get a web form.</label>
+        <input className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
       </div>
       {(documentTemplates != null && documentTemplates.length) ?
         (<div className="table-responsive">
@@ -149,22 +144,22 @@ export default function Documents() {
                 <tr key={doc.id}>
                   <td scope="row">
                     <Link href={`/documents/${doc.id}`}>
-                      <a>{doc.fileName}</a>
+                      <a>{doc.name}</a>
                     </Link>
                   </td>
                   <td>{doc.createdAt}</td>
                   <td>{doc.updatedAt}</td>
                   <td>
-                    <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc.id)}>Open</button>
+                    <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc)}>Open</button>
                   </td>
                   <td>
-                    <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc.id)}>Edit</button>
+                    <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc)}>Edit</button>
                   </td>
                   <td>
-                    <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc.id)}>Download</button>
+                    <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc)}>Download</button>
                   </td>
                   <td>
-                    <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc.id)}>Delete</button>
+                    <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc)}>Delete</button>
                   </td>
                 </tr>
               ))}

@@ -49,10 +49,7 @@ export default function Document() {
       axios
         .get(`/api/documents/${id}`)
         .then((res) => {
-          const { data } = res.data;
-          if (data) {
-            setDocumentTemplate(data)
-          }
+          setDocumentTemplate(res.data)
         })
         .catch((err) => {
           console.log(err)

@@ -3,10 +3,11 @@ import type { NextApiRequest, NextApiResponse } from "next"
 
 import fs from 'fs'
 import formidable from 'formidable'
+import { Prisma } from "@prisma/client"
 
 import prisma from '../../../lib/prisma'
-import { getSchemas } from "../../../utils/document"
-import { Prisma } from "@prisma/client"
+import { getSchemas, getTags } from "../../../utils/document"
+import getServerURL from "../../../utils/server"
 
 export const config = {
   api: {
@@ -47,14 +48,35 @@ export default async function protectedHandler(
             updatedAt: true,
           },
         })
+        
+        const data = documentTemplates.map(dt => ({
+          id: dt.id,
+          name: dt.fileName,
+          fileUrl: getServerURL(`/api/documents/${dt.id}/file`),
+          createdAt: dt.createdAt,
+          updatedAt: dt.updatedAt,
+          links: {
+            self: {
+              href: getServerURL(`/api/documents/${dt.id}`),
+              rel: 'self',
+              method: 'GET'
+            },
+            'delete-self': {
+              href: getServerURL(`/api/documents/${dt.id}`),
+              rel: 'delete-self',
+              method: 'DELTE'
+            },
+            'post-form': {
+              href: getServerURL(`/api/documents/${dt.id}/forms`),
+              rel: 'post-form',
+              method: 'POST'
+            }
+          }
+        }))
 
-        return res.send({
-          data: documentTemplates,
-          success: true,
-          content:
-            "This is protected content. You can access this content because you are signed in.",
-        })
+        return res.status(200).send(data)
       } catch (error) {
+        console.log(error)
         return res.status(400).json({
           success: false,
         })
@@ -70,8 +92,9 @@ export default async function protectedHandler(
         })
         const { files: { file } } = data;
         const buffer = fs.readFileSync(file.path)
+        const tags = getTags(buffer)
         const { schema, uiSchema } = getSchemas({
-          buffer,
+          tags,
           title: file.name!,
           description: ''
         })
@@ -86,6 +109,7 @@ export default async function protectedHandler(
             fileSize: file.size!,
             file: buffer,
             fileLastModifiedDate: file.lastModifiedDate!,
+            tags,
           },
           select: {
             id: true,
@@ -109,8 +133,28 @@ export default async function protectedHandler(
         console.log('form', form);
 
         return res.status(200).json({
-          data: documentTemplate,
-          success: true,
+          id: documentTemplate!.id,
+          name: documentTemplate!.fileName,
+          fileUrl: getServerURL(`/api/documents/${documentTemplate.id}/file`),
+          createdAt: documentTemplate!.createdAt,
+          updatedAt: documentTemplate!.updatedAt,
+          links: {
+            'self': {
+              href: getServerURL(`/api/documents/${documentTemplate.id}`),
+              rel: 'self',
+              method: 'GET'
+            },
+            'delete-self': {
+              href: getServerURL(`/api/documents/${documentTemplate.id}`),
+              rel: 'delete-self',
+              method: 'DELTE'
+            },
+            'post-form': {
+              href: getServerURL(`/api/documents/${documentTemplate.id}/forms`),
+              rel: 'post-form',
+              method: 'POST'
+            }
+          }
         })
       } catch (error) {
         console.log(error)
@@ -119,7 +163,7 @@ export default async function protectedHandler(
 				})
 			}
     default:
-      //res.setHeaders("Allow", ["GET", "POST"])
+      // res.setHeaders("Allow", ["GET", "POST"])
       return res.status(405).json({
         success: false,
         error: `Method '${method}' Not Allowed`

@@ -71,6 +71,7 @@ model DocumentTemplate {
   fileSize             Int
   file                 Bytes
   fileLastModifiedDate DateTime
+  tags                 Json
   createdAt            DateTime     @default(now())
   updatedAt            DateTime     @updatedAt
   user                 User         @relation(fields: [userId], references: [id])

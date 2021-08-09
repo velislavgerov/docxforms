@@ -24,11 +24,9 @@ export default function Home() {
           </Link>
           {loading ? (
             <div className="col-lg-6 mx-auto">
-              <div className="m-4 d-flex justify-content-center">
-                <div className="spinner-border text-primary small" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </div>
-              </div>
+              <p className="lead mb-4">
+                Loading...
+              </p>
             </div>
           ) : (
             <div className="col-lg-6 mx-auto">

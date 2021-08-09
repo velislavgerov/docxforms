@@ -7,15 +7,16 @@ const PizZip = require('pizzip')
 const startCase = require('lodash.startcase')
 
 interface getSchemaInput {
-  buffer: Buffer
+  tags: object
   title: string
   description: string 
 }
 
 export function getTags (buffer: Buffer) {
-  var zip = new PizZip(buffer)
+  const zip = new PizZip(buffer)
   const iModule = InspectModule()
   let doc
+
   try {
     doc = new Docxtemplater(zip, {
       paragraphLoop: true,
@@ -116,7 +117,7 @@ export const createCleanLabel = (label: string): string => {
   return startCase(label.replace('_', ' '));
 };
 
-export function getSchemas({ buffer, title, description } : getSchemaInput) {
+export function getSchemas({ tags, title, description } : getSchemaInput) {
   let schema: any = {
     title,
     description,
@@ -130,7 +131,6 @@ export function getSchemas({ buffer, title, description } : getSchemaInput) {
     'ui:order': []
   }
 
-  let tags = getTags(buffer)
   if (tags != null) {
     schema.properties = tags
 

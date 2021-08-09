@@ -8,7 +8,8 @@ export default async function protectedHandler(
   res: NextApiResponse
 ) {
   const session = await getSession({ req })
-  const { method, query, body } = req;
+  const { method, query } = req;
+  const documentId = query.documentId as string;
   
   if (!session) {
     return res.status(401).send({
@@ -22,7 +23,7 @@ export default async function protectedHandler(
       try {
         const documentTemplate = await prisma.documentTemplate.findUnique({
           where: {
-            id: query.id as string,
+            id: documentId,
           },
           select: {
             id: true,
@@ -37,56 +38,11 @@ export default async function protectedHandler(
         })
 
         return res.status(200).json({
-          data: documentTemplate,
-          success: true
-        })
-      } catch (error) {
-        console.error(error)
-        return res.status(400).json({
-          success: false,
-        })
-      }
-    case 'PATCH':
-      try {
-        console.log(query, req.body);
-
-        let form = await prisma.form.findFirst({
-          where: {
-            documentTemplateId: query.id as string,
-          },
-        })
-        console.log('form', form);
-
-        form = await prisma.form.update({
-          where: {
-            id: form!.id,
-          },
-          data: {
-            schema: JSON.parse(body.schema),
-            uiSchema: JSON.parse(body.uiSchema),
-          }
-        })
-        console.log('updated form', form);
-
-        const documentTemplate = await prisma.documentTemplate.findUnique({
-          where: {
-            id: query.id as string,
-          },
-          select: {
-            id: true,
-            fileName: true,
-            fileType: true,
-            fileSize: true,
-            fileLastModifiedDate: true,
-            createdAt: true,
-            updatedAt: true,
-            forms: true,
-          },
-        })
-
-        return res.status(200).json({
-          data: documentTemplate,
-          success: true
+          id: documentTemplate!.id,
+          name: documentTemplate!.fileName,
+          fileUrl: `/api/documents/${documentId}/file`,
+          createdAt: documentTemplate!.createdAt,
+          updatedAt: documentTemplate!.updatedAt,
         })
       } catch (error) {
         console.error(error)
@@ -96,19 +52,25 @@ export default async function protectedHandler(
       }
     case 'DELETE':
       try {
+        await prisma.submission.deleteMany({
+          where: {
+            documentTemplateId: documentId,
+          }
+        })
+
         await prisma.form.deleteMany({
           where: {
-            documentTemplateId: query.id as string,
+            documentTemplateId: documentId,
           }
         })
 
         await prisma.documentTemplate.delete({
           where: {
-            id: query.id as string,
+            id: documentId,
           }
         })
 
-        return res.status(200).json({ })
+        return res.status(204).json({ })
       } catch (error) {
         console.error(error)
         return res.status(400).json({
@@ -116,7 +78,7 @@ export default async function protectedHandler(
         })
       }
     default:
-      //res.setHeaders("Allow", ["GET", "POST"])
+      // res.setHeaders("Allow", ["GET", "POST"])
       return res.status(405).json({
         success: false,
         error: `Method '${method}' Not Allowed`

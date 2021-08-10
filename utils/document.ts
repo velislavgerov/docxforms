@@ -103,22 +103,22 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
   }
 }
 
+export const createCleanLabel = (label: string): string => startCase(label.replace('_', ' '));
+
 const getLabel = (key: string): string => {
+  let label = key
+  
   if (key.startsWith('if_')) {
-    key = key.replace('if_', '')
+    label = key.replace('if_', '')
   } else if (key.startsWith('list_')) {
-    key = key.replace('list_', '')
+    label = key.replace('list_', '')
   }
 
-  return createCleanLabel(key);
-};
-
-export const createCleanLabel = (label: string): string => {
-  return startCase(label.replace('_', ' '));
+  return createCleanLabel(label);
 };
 
 export function getSchemas({ tags, title, description } : getSchemaInput) {
-  let schema: any = {
+  const schema: any = {
     title,
     description,
     type: 'object',
@@ -127,7 +127,7 @@ export function getSchemas({ tags, title, description } : getSchemaInput) {
     dependencies: {}
   }
 
-  let uiSchema = {
+  const uiSchema = {
     'ui:order': []
   }
 

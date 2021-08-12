@@ -15,12 +15,12 @@ const Form = withTheme(Bootstrap4Theme)
 export interface DocumentProps {
   id: string
   schema: object
-  uiSchema: object 
+  uiSchema: object
 }
 
-export default function Document (props: DocumentProps) {
+export default function Document(props: DocumentProps) {
   const router = useRouter()
-  const [ session, loading ] = useSession()
+  const [session, loading] = useSession()
 
   const { formId } = router.query
 
@@ -28,11 +28,11 @@ export default function Document (props: DocumentProps) {
     const { formData } = data;
     if (formId != null) {
       axios({
-          method: 'POST',
-          url: `/api/f/${formId}`,
-          responseType: 'blob',
-          data: formData
-        })
+        method: 'POST',
+        url: `/api/f/${formId}`,
+        responseType: 'blob',
+        data: formData
+      })
         .then((res) => {
           console.log(res)
           const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -44,7 +44,7 @@ export default function Document (props: DocumentProps) {
           if (disposition && disposition.indexOf('attachment') !== -1) {
             var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
             var matches = filenameRegex.exec(disposition)
-            if (matches != null && matches[1]) { 
+            if (matches != null && matches[1]) {
               filename = matches[1].replace(/['"]/g, '')
             }
           }

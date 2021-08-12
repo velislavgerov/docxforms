@@ -51,7 +51,7 @@
     "lodash.startcase": "^4.4.0",
     "next": "^11.0.1",
     "next-auth": "^3.27.3",
-    "pizzip": "^3.0.6",
+    "pizzip": "^3.1.1",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.1",
     "react-dom": "^17.0.2"

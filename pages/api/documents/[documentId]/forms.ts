@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import { getSession } from "next-auth/client"
 
 import prisma from '../../../../lib/prisma'
+import { getSchemas } from "../../../../utils/document";
 
 export default async function protectedHandler(
   req: NextApiRequest,
@@ -29,7 +30,20 @@ export default async function protectedHandler(
             id: true,
             schema: true,
             uiSchema: true,
+            createdAt: true,
+            updatedAt: true,
           },
+          orderBy: [
+            {
+              createdAt: 'asc',
+            },
+            {
+              updatedAt: 'asc',
+            },
+            {
+              id: 'asc'
+            },
+          ]
         })
 
         return res.status(200).json(forms)
@@ -41,17 +55,45 @@ export default async function protectedHandler(
       }
     case 'PUT':
       try {
+        let schema
+        let uiSchema
+        if (body.schema == null || body.uiSchema == null) {
+          const documentTemplate = await prisma.documentTemplate.findUnique({
+            where: {
+              id: documentId,
+            },
+            select: {
+              tags: true,
+            },
+          })
+
+          const schemas = getSchemas({
+            tags: documentTemplate!.tags,
+            title: 'New Form',
+            description: ''
+          })
+          
+          schema = schemas.schema
+          uiSchema = schemas.uiSchema
+
+        } else {
+          schema = body.schema
+          uiSchema = body.uiSchema
+        }
+
         const form = await prisma.form.create({
           data: {
             userId: session.userId,
             documentTemplateId: documentId,
-            schema: body.schema,
-            uiSchema: body.uiSchema,
+            schema,
+            uiSchema,
           },
           select: {
             id: true,
             schema: true,
             uiSchema: true,
+            createdAt: true,
+            updatedAt: true,
           }
         })
 

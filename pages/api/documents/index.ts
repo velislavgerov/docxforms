@@ -95,8 +95,8 @@ export default async function protectedHandler(
         const tags = getTags(buffer)
         const { schema, uiSchema } = getSchemas({
           tags,
-          title: file.name!,
-          description: ''
+          title: 'Default Form',
+          description: 'This form was automatically created when you uploaded the document.'
         })
         console.log('schema', schema)
         console.log('uiSchema', uiSchema)

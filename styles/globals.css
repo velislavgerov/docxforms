@@ -1,7 +1,7 @@
 /* Override react-jsonschema-form-builder styles*/
 .formHead-0-2-2 {
   width: auto !important;
-  background-color: var(--bs-light) !important;
+  background-color: var(--bs-white) !important;
 }
 
 .formBuilder-0-2-1 .alert {
@@ -26,5 +26,17 @@
 
 .formHead-0-2-2 div {
   width: 100% !important;
+}
+
+.form-footer {
+  display: none !important;
+}
+
+.formBody-0-2-3 > div > div > div:nth-child(2) {
+  display: none !important;
+}
+
+[class^='cardInteractions'] > span:nth-child(2) {
+  display: none !important;
 }
 /* End of override*/

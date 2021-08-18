@@ -3,14 +3,66 @@ import axios from 'axios'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/client'
+import { Button } from 'react-bootstrap'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-
-import FormBuilder from '../../components/form-builder'
 import Header from '../../components/header'
+import Confirm, { ConfirmProps } from '../../components/confirm'
+import EditForm, { EditFormProps } from '../../components/edit-form'
+import PreviewForm, { PreviewFormProps } from '../../components/preview-form'
 
-function Forms({ forms }: { forms: any }) {
+function Forms({ forms, fetchForms }: { forms: any, fetchForms: Promise }) {
+  const [confirm, setConfirm] = useState<null | ConfirmProps>(null);
+  const [editForm, setEditForm] = useState<null | EditFormProps>(null);
+  const [previewForm, setPreviewForm] = useState<null | PreviewFormProps>(null);
+
+  const handleSaveForm = ({ formId, schema, uiSchema }) => axios
+    .put(`/api/forms/${formId}`, {
+      schema,
+      uiSchema,
+    })
+
+  const handlePreview = (form) => {
+    setPreviewForm({
+      show: true,
+      onCancel: () => setPreviewForm(null),
+      form,
+    })
+  }
+
+  const handleEdit = (form) => {
+    setEditForm({
+      show: true,
+      onCancel: () => setEditForm(null),
+      onSave: ({ formId, schema, uiSchema }) => handleSaveForm({ formId, schema, uiSchema })
+        .then(() => setEditForm(null))
+        .then(() => fetchForms()),
+      form,
+    })
+  }
+
+  const handleDelete = (form) => {
+    const deleteBtn = <Button
+      variant="dark"
+      onClick={() => {
+        axios.delete(`/api/forms/${form.id}`)
+          .then(() => setConfirm(null))
+          .then(() => fetchForms())
+      }}
+    >
+      Delete
+    </Button>
+
+    setConfirm({
+      show: true,
+      title: 'Confirmation Required',
+      body: 'This action is irreversible. Are you sure you want to delete the form?',
+      actionBtn: deleteBtn,
+      onCancel: () => setConfirm(null),
+    })
+  }
+
   let view;
   if (forms == null) {
     view = (
@@ -21,35 +73,72 @@ function Forms({ forms }: { forms: any }) {
   } else if (!forms.length) {
     view = (
       <div className="alert alert-light" role="alert">
-        No forms created for this document template. <button>Add +</button>
+        No forms created for this document template.
       </div>
     )
   } else {
     view = (
-      <div className="table-responsive">
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Created at</th>
-              <th scope="col">Updated at</th>
-            </tr>
-          </thead>
-          <tbody>
-            {forms.map((form: any) => (
-              <tr key={form.id}>
-                <td scope="row">
-                  <Link href={`/documents/${form.id}`}>
-                    <a>{form.id}</a>
-                  </Link>
-                </td>
-                <td>{form.createdAt}</td>
-                <td>{form.updatedAt}</td>
+      <>
+        {confirm && <Confirm {...confirm} />}
+        {editForm && <EditForm {...editForm} />}
+        {previewForm && <PreviewForm {...previewForm} />}
+        <div className="table-responsive">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Visibility</th>
+                <th scope="col">URL</th>
+                <th scope="col">Created at</th>
+                <th scope="col">Updated at</th>
+                <th scope="col">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {forms.map((form: any) => (
+                <tr key={form.id}>
+                  <td>{form.schema.title}</td>
+                  <td>{form.schema.description}</td>
+                  <td>Private</td>
+                  <td>
+                    <Link href={`/f/${form.id}`}>
+                      <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>
+                    </Link>
+                  </td>
+                  <td>{form.createdAt}</td>
+                  <td>{form.updatedAt}</td>
+                  <td>
+                    <div className="d-grid gap-2 d-sm-flex">
+                      <button
+                        type="button"
+                        className="btn btn-light flex-grow-1"
+                        onClick={() => handlePreview(form)}
+                      >
+                        Preview
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-primary flex-grow-1"
+                        onClick={() => handleEdit(form)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-dark flex-grow-1"
+                        onClick={() => handleDelete(form)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
     )
   }
 
@@ -131,6 +220,26 @@ export default function Document() {
       })
   }
 
+  const fetchForms = () => axios
+    .get(`/api/documents/${documentId}/forms`)
+    .then((res) => {
+      setForms(res.data)
+    })
+    .catch((err) => {
+      console.log(err)
+      alert("Failed to load document forms")
+    })
+
+  const createForm = () => axios
+    .put(`/api/documents/${documentId}/forms`)
+    .then(() => {
+      fetchForms()
+    })
+    .catch((err) => {
+      console.log(err)
+      alert("Failed to load document forms")
+    })
+
   useEffect(() => {
     if (session != null && documentId != null) {
       axios
@@ -143,15 +252,7 @@ export default function Document() {
           alert("Failed to load document")
         })
 
-      axios
-        .get(`/api/documents/${documentId}/forms`)
-        .then((res) => {
-          setForms(res.data)
-        })
-        .catch((err) => {
-          console.log(err)
-          alert("Failed to load document forms")
-        })
+      fetchForms()
     }
   }, [session, documentId])
 
@@ -182,10 +283,20 @@ export default function Document() {
         <button type="button" className="btn btn-warning flex-grow-1" onClick={handleDownload}>Download</button>
         <button type="button" className="btn btn-dark flex-grow-1" onClick={handleDelete}>Delete</button>
       </div>
-      <h1 className="display-5">
-        Forms
-      </h1>
-      <Forms forms={forms} />
+      <div className="py-4">
+        <div className="d-grid gap-2 d-sm-flex justify-content-between">
+          <h2>
+            Manage Forms
+          </h2>
+          <button className="btn btn-outline-dark" type="button"
+            onClick={createForm}
+          >
+            + Add Form
+          </button>
+        </div>
+        <p className="lead">This is a lead paragraph with some useful information about forms.</p>
+        <Forms forms={forms} fetchForms={fetchForms} />
+      </div>
       {/*documentTemplate && (<>
         <FormBuilder
           formId={documentTemplate.id}

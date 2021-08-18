@@ -85,21 +85,22 @@ export default function Document(props: DocumentProps) {
 export async function getServerSideProps(context: any) {
   const { params: { formId } } = context
 
-  const documentTemplate = await prisma.documentTemplate.findUnique({
+  const form = await prisma.form.findUnique({
     where: {
       id: formId,
     },
     select: {
       id: true,
-      forms: true,
+      schema: true,
+      uiSchema: true
     },
   })
 
   return {
     props: {
-      id: documentTemplate!.id,
-      schema: documentTemplate!.forms[0].schema,
-      uiSchema: documentTemplate!.forms[0].uiSchema,
+      id: form!.id,
+      schema: form!.schema,
+      uiSchema: form!.uiSchema,
     },
   }
 }

@@ -1,4 +1,3 @@
-
 import Docxtemplater from "docxtemplater"
 import type { NextApiRequest, NextApiResponse } from "next"
 
@@ -19,6 +18,7 @@ export default async function protectedHandler(
   res: NextApiResponse
 ) {
   const { method, query } = req
+  const formId  = query.formId as string
   
   switch(method) {
     case 'POST':
@@ -32,24 +32,28 @@ export default async function protectedHandler(
           }) 
         })
 
-        const documentTemplate = await prisma.documentTemplate.findUnique({
+        const form = await prisma.form.findUnique({
           where: {
-            id: query.id as string,
+            id: formId,
           },
-          select: {
-            id: true,
-            file: true,
-            fileName: true,
-            fileType: true,
-            fileSize: true,
-            fileLastModifiedDate: true,
-            createdAt: true,
-            updatedAt: true,
-            forms: true,
+          include: {
+            documentTemplate: {
+              select: {
+                id: true,
+                file: true,
+                fileName: true,
+                fileType: true,
+                fileSize: true,
+                fileLastModifiedDate: true,
+                createdAt: true,
+                updatedAt: true,
+                forms: true,
+              },
+            },
           },
         })
 
-        const zip = new PizZip(documentTemplate!.file);
+        const zip = new PizZip(form!.documentTemplate!.file);
         let doc;
         try {
           doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true })
@@ -77,18 +81,18 @@ export default async function protectedHandler(
 
         await prisma.submission.create({
           data: {
-            documentTemplateId: documentTemplate!.id,
-            formId: documentTemplate!.forms[0]!.id,
+            documentTemplateId: form!.documentTemplate!.id,
+            formId: form!.documentTemplate!.forms[0]!.id,
             content: data.fields,
-            fileName: documentTemplate!.fileName,
-            fileType: documentTemplate!.fileType,
+            fileName: form!.documentTemplate!.fileName,
+            fileType: form!.documentTemplate!.fileType,
             fileSize: Buffer.byteLength(buf),
             file: buf,
           }
         })
 
-        res.setHeader("Content-disposition", `attachment; filename=${documentTemplate!.fileName}`);
-        res.setHeader("Content-Type", documentTemplate!.fileType)
+        res.setHeader("Content-disposition", `attachment; filename=${form!.documentTemplate!.fileName}`);
+        res.setHeader("Content-Type", form!.documentTemplate!.fileType)
         return res.send(buf)
       } catch (error) {
         console.error(error)

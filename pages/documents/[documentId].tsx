@@ -11,17 +11,15 @@ import Header from '../../components/header'
 import Confirm, { ConfirmProps } from '../../components/confirm'
 import EditForm, { EditFormProps } from '../../components/edit-form'
 import PreviewForm, { PreviewFormProps } from '../../components/preview-form'
+import useDocumentForms from '../../lib/hooks/use-document-forms'
+import useDocumentTemplate from '../../lib/hooks/use-document'
 
-function Forms({ forms, fetchForms }: { forms: any, fetchForms: Promise }) {
+function Forms({ documentId }: { documentId: string }) {
+  const { forms, updateForm, deleteForm } = useDocumentForms(documentId);
+
   const [confirm, setConfirm] = useState<null | ConfirmProps>(null);
   const [editForm, setEditForm] = useState<null | EditFormProps>(null);
   const [previewForm, setPreviewForm] = useState<null | PreviewFormProps>(null);
-
-  const handleSaveForm = ({ formId, schema, uiSchema }) => axios
-    .put(`/api/forms/${formId}`, {
-      schema,
-      uiSchema,
-    })
 
   const handlePreview = (form) => {
     setPreviewForm({
@@ -35,9 +33,8 @@ function Forms({ forms, fetchForms }: { forms: any, fetchForms: Promise }) {
     setEditForm({
       show: true,
       onCancel: () => setEditForm(null),
-      onSave: ({ formId, schema, uiSchema }) => handleSaveForm({ formId, schema, uiSchema })
-        .then(() => setEditForm(null))
-        .then(() => fetchForms()),
+      onSave: ({ formId, schema, uiSchema }) => updateForm(formId, { schema, uiSchema })
+        .then(() => setEditForm(null)),
       form,
     })
   }
@@ -45,11 +42,9 @@ function Forms({ forms, fetchForms }: { forms: any, fetchForms: Promise }) {
   const handleDelete = (form) => {
     const deleteBtn = <Button
       variant="dark"
-      onClick={() => {
-        axios.delete(`/api/forms/${form.id}`)
-          .then(() => setConfirm(null))
-          .then(() => fetchForms())
-      }}
+      onClick={() => deleteForm(form.id)
+        .then(() => setConfirm(null))
+      }
     >
       Delete
     </Button>
@@ -57,108 +52,102 @@ function Forms({ forms, fetchForms }: { forms: any, fetchForms: Promise }) {
     setConfirm({
       show: true,
       title: 'Confirmation Required',
-      body: 'This action is irreversible. Are you sure you want to delete the form?',
+      body: 'This action is irreversible. Are you sure you want to delete this form?',
       actionBtn: deleteBtn,
       onCancel: () => setConfirm(null),
     })
   }
 
-  let view;
   if (forms == null) {
-    view = (
+    return (
       <p className="lead mb-4">
         Loading...
       </p>
     )
-  } else if (!forms.length) {
-    view = (
+  }
+
+  if (!forms.length) {
+    return (
       <div className="alert alert-light" role="alert">
         No forms created for this document template.
       </div>
     )
-  } else {
-    view = (
-      <>
-        {confirm && <Confirm {...confirm} />}
-        {editForm && <EditForm {...editForm} />}
-        {previewForm && <PreviewForm {...previewForm} />}
-        <div className="table-responsive">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Visibility</th>
-                <th scope="col">URL</th>
-                <th scope="col">Created at</th>
-                <th scope="col">Updated at</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {forms.map((form: any) => (
-                <tr key={form.id}>
-                  <td>{form.schema.title}</td>
-                  <td>{form.schema.description}</td>
-                  <td>Private</td>
-                  <td>
-                    <Link href={`/f/${form.id}`}>
-                      <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>
-                    </Link>
-                  </td>
-                  <td>{form.createdAt}</td>
-                  <td>{form.updatedAt}</td>
-                  <td>
-                    <div className="d-grid gap-2 d-sm-flex">
-                      <button
-                        type="button"
-                        className="btn btn-light flex-grow-1"
-                        onClick={() => handlePreview(form)}
-                      >
-                        Preview
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-primary flex-grow-1"
-                        onClick={() => handleEdit(form)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-dark flex-grow-1"
-                        onClick={() => handleDelete(form)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </>
-    )
   }
 
-  return view
+  return (
+    <>
+      {confirm && <Confirm {...confirm} />}
+      {editForm && <EditForm {...editForm} />}
+      {previewForm && <PreviewForm {...previewForm} />}
+      <div className="table-responsive">
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Description</th>
+              <th scope="col">Visibility</th>
+              <th scope="col">URL</th>
+              <th scope="col">Created at</th>
+              <th scope="col">Updated at</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {forms.map((form: any) => (
+              <tr key={form.id}>
+                <td>{form.schema.title}</td>
+                <td>{form.schema.description}</td>
+                <td>Private</td>
+                <td>
+                  <Link href={`/f/${form.id}`}>
+                    <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>
+                  </Link>
+                </td>
+                <td>{form.createdAt}</td>
+                <td>{form.updatedAt}</td>
+                <td>
+                  <div className="d-grid gap-2 d-sm-flex">
+                    <button
+                      type="button"
+                      className="btn btn-light flex-grow-1"
+                      onClick={() => handlePreview(form)}
+                    >
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary flex-grow-1"
+                      onClick={() => handleEdit(form)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-dark flex-grow-1"
+                      onClick={() => handleDelete(form)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  )
 }
 
 export default function Document() {
   const router = useRouter()
   const [session, loading] = useSession()
-  const [documentTemplate, setDocumentTemplate] = useState<null | any>()
-  const [forms, setForms] = useState<null | [] | [form: object]>()
 
   const { query } = router
   const documentId = query.documentId as string
 
-  const handleView = () => {
-    if (documentId == null) return
-
-    router.push(`/f/${documentId}`)
-  }
+  const { documentTemplate } = useDocumentTemplate(documentId)
+  const { createForm } = useDocumentForms(documentId)
 
   const handleDelete = () => {
     if (documentId == null) return
@@ -208,16 +197,6 @@ export default function Document() {
         console.log(err)
         alert("Failed to get document content")
       })
-
-    const handleUpdate = ({ targetId, schema, uiSchema }: { targetId: string, schema: object, uiSchema: object }) => axios
-      .patch(`/api/documents/${targetId}`, { schema, uiSchema })
-      .then(() => {
-        alert("Document Update Success")
-      })
-      .catch((err) => {
-        console.error(err)
-        alert("Document Update Error")
-      })
   }
 
   const fetchForms = () => axios
@@ -230,29 +209,22 @@ export default function Document() {
       alert("Failed to load document forms")
     })
 
-  const createForm = () => axios
-    .put(`/api/documents/${documentId}/forms`)
-    .then(() => {
-      fetchForms()
+  const fetchSubmissions = () => axios
+    .get(`/api/documents/${documentId}/submissions`)
+    .then((res) => {
+      console.log(res.data)
+      setSubmissions(res.data)
     })
     .catch((err) => {
       console.log(err)
-      alert("Failed to load document forms")
+      alert("Failed to fetch submissions")
     })
 
   useEffect(() => {
     if (session != null && documentId != null) {
-      axios
-        .get(`/api/documents/${documentId}`)
-        .then((res) => {
-          setDocumentTemplate(res.data)
-        })
-        .catch((err) => {
-          console.log(err)
-          alert("Failed to load document")
-        })
 
-      fetchForms()
+      // fetchForms()
+      // fetchSubmissions()
     }
   }, [session, documentId])
 
@@ -295,22 +267,8 @@ export default function Document() {
           </button>
         </div>
         <p className="lead">This is a lead paragraph with some useful information about forms.</p>
-        <Forms forms={forms} fetchForms={fetchForms} />
+        {documentTemplate && <Forms documentId={documentTemplate.id} />}
       </div>
-      {/*documentTemplate && (<>
-        <FormBuilder
-          formId={documentTemplate.id}
-          schema={documentTemplate.forms[0].schema}
-          uiSchema={documentTemplate.forms[0].uiSchema}
-          onUpdate={({ schema, uiSchema }: { schema: object, uiSchema: object }) => handleUpdate({
-            targetId: documentTemplate.id,
-            schema,
-            uiSchema
-          })}
-          onOpen={() => handleView(documentTemplate.id)}
-          onDelete={() => handleDelete(documentTemplate.id)}
-        />
-      </>)*/}
     </div>
   )
 }

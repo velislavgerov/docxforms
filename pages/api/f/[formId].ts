@@ -1,8 +1,8 @@
 import Docxtemplater from "docxtemplater"
 import type { NextApiRequest, NextApiResponse } from "next"
 
-import prisma from '../../../lib/prisma'
-import errorHandler from "../../../utils/error-handler"
+import prisma from '../../../lib/db/prisma'
+import errorHandler from "../../../lib/utils/error-handler"
 import formidable from 'formidable'
 
 const PizZip = require('pizzip')

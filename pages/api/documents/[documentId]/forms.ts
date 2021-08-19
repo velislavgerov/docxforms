@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { getSession } from "next-auth/client"
 
-import prisma from '../../../../lib/prisma'
-import { getSchemas } from "../../../../utils/document";
+import prisma from '../../../../lib/db/prisma'
+import { getSchemas } from "../../../../lib/utils/document";
 
 export default async function protectedHandler(
   req: NextApiRequest,

@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import { getSession } from "next-auth/client"
 
-import prisma from '../../../../lib/prisma'
+import prisma from '../../../../lib/db/prisma'
+import getServerURL from "../../../../lib/utils/server";
 
 export default async function protectedHandler(
   req: NextApiRequest,
@@ -40,7 +41,7 @@ export default async function protectedHandler(
         return res.status(200).json({
           id: documentTemplate!.id,
           name: documentTemplate!.fileName,
-          fileUrl: `/api/documents/${documentId}/file`,
+          fileUrl: getServerURL(`/api/documents/${documentId}/file`),
           createdAt: documentTemplate!.createdAt,
           updatedAt: documentTemplate!.updatedAt,
         })

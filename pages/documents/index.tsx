@@ -1,53 +1,36 @@
-import React, { useState, useEffect, SyntheticEvent } from 'react'
-
+import React, { SyntheticEvent } from 'react'
 import { useSession } from 'next-auth/client'
-import axios from 'axios'
-import { DocumentTemplate } from '@prisma/client'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
 import Header from '../../components/header'
+import useDocumentTemplates from '../../lib/hooks/use-documents'
 
 export default function Documents() {
   const router = useRouter()
   const [session, loading] = useSession()
-  const [documentTemplates, setDocumentTemplates] = useState<[] | [doc: any]>([]);
-
-  const fetchDocuments = async () => {
-    if (session) {
-      axios
-        .get(`/api/documents`)
-        .then((res) => {
-          setDocumentTemplates(res.data)
-        })
-        .catch((err) => alert("Failed to load document"))
-    }
-  }
-
-  // Fetch content from protected route
-  useEffect(() => {
-    fetchDocuments()
-  }, [session])
+  const {
+    documentTemplates,
+    uploadDocumentTemplate,
+    updateDocumentTemplate,
+    deleteDocumentTemplate,
+    downloadDocumentTemplate
+  } = useDocumentTemplates()
 
   const handleFileInput = (e: SyntheticEvent) => {
     e.preventDefault()
-
     const target = e.target as HTMLInputElement
     const selectedFile = target.files![0]
-    const formData = new FormData()
-    formData.append("name", selectedFile.name)
-    formData.append("file", selectedFile)
 
-    axios
-      .post('/api/documents', formData)
-      .then((res) => {
-        handleEdit(res.data)
-      })
+    uploadDocumentTemplate({
+      name: selectedFile.name,
+      file: selectedFile,
+    })
       .catch((err) => {
         console.log(err)
-        alert("File Upload Error")
+        alert("Failed to upload document")
       })
   }
 
@@ -60,48 +43,18 @@ export default function Documents() {
   }
 
   const handleDelete = (doc: any) => {
-    axios
-      .delete(doc.links['delete-self'].href)
-      .then((res) => {
-        fetchDocuments()
-        alert("File Deleted Successfully")
-      })
+    deleteDocumentTemplate(doc.id)
       .catch((err) => {
-        console.error(err)
-        alert("File Delete Error")
+        console.log(err)
+        alert("Failed to delete document")
       })
   }
 
   const handleDownload = (doc: any) => {
-    axios({
-      method: 'GET',
-      url: doc.fileUrl,
-      responseType: 'blob',
-    })
-      .then((res) => {
-        console.log(res)
-        const url = window.URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement('a');
-
-        let filename = ''
-        const disposition = res.headers['content-disposition'];
-        // source: https://stackoverflow.com/a/40940790
-        if (disposition && disposition.indexOf('attachment') !== -1) {
-          var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-          var matches = filenameRegex.exec(disposition)
-          if (matches != null && matches[1]) {
-            filename = matches[1].replace(/['"]/g, '')
-          }
-        }
-
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-      })
+    downloadDocumentTemplate(doc.id)
       .catch((err) => {
         console.log(err)
-        alert("Failed to get document content")
+        alert("Failed to download document")
       })
   }
 

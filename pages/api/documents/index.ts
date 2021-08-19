@@ -5,9 +5,9 @@ import fs from 'fs'
 import formidable from 'formidable'
 import { Prisma } from "@prisma/client"
 
-import prisma from '../../../lib/prisma'
-import { getSchemas, getTags } from "../../../utils/document"
-import getServerURL from "../../../utils/server"
+import prisma from '../../../lib/db/prisma'
+import { getSchemas, getTags } from "../../../lib/utils/document"
+import getServerURL from "../../../lib/utils/server"
 
 export const config = {
   api: {

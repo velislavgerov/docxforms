@@ -2,14 +2,21 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '../styles/globals.css'
 
+import React from 'react'
 import type { AppProps } from 'next/app'
 
 import { Provider } from 'next-auth/client'
+import { SWRConfig } from 'swr'
+import axios from 'axios'
 
-export default function App ({ Component, pageProps }: AppProps) {
+const fetcher = (url: string) => axios.get(url).then((res) => res.data)
+
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    <Provider session={pageProps.session}>
-      <Component {...pageProps} />
-    </Provider>
+    <SWRConfig value={{ fetcher }}>
+      <Provider session={pageProps.session}>
+        <Component {...pageProps} />
+      </Provider>
+    </SWRConfig>
   )
 }

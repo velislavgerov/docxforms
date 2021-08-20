@@ -135,7 +135,6 @@ export function getSchemas({ tags, title, description } : getSchemaInput) {
     schema.properties = tags
 
     for (const [key, value] of Object.entries(schema.properties)) {
-      console.log(`transform ${key}: ${value}`);
       transform({
         uiSchema,
         schema,

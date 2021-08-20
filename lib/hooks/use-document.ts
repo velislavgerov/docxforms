@@ -1,13 +1,12 @@
 import useSWR from 'swr'
-import axios from 'axios'
+import { Session } from 'next-auth'
+import { IDocumentTemplate } from '../types/api'
 
-const fetcher = (url: string) => axios.get(url).then(res => res.data)
-
-function useDocumentTemplate (documentTemplateId: string) {
-  const { data, error } = useSWR(`/api/documents/${documentTemplateId}`, fetcher)
+function useDocumentTemplate (documentTemplateId: string | null, session: Session| null) {
+  const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}` : null)
 
   return {
-    documentTemplate: data,
+    documentTemplate: <null | IDocumentTemplate>data,
     isLoading: !error && !data,
     isError: error
   }

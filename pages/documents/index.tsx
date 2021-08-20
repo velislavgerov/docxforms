@@ -6,18 +6,25 @@ import Link from 'next/link'
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
 import Header from '../../components/header'
-import useDocumentTemplates from '../../lib/hooks/use-documents'
+import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
+import { IDocumentTemplate } from '../../lib/types/api'
 
 export default function Documents() {
   const router = useRouter()
   const [session, loading] = useSession()
-  const {
-    documentTemplates,
-    uploadDocumentTemplate,
-    updateDocumentTemplate,
-    deleteDocumentTemplate,
-    downloadDocumentTemplate
-  } = useDocumentTemplates()
+  const { documentTemplates } = useDocumentTemplates()
+
+  const handleEdit = (doc: IDocumentTemplate) => {
+    router.push(`/documents/${doc.id}`)
+  }
+
+  const handleDelete = (doc: IDocumentTemplate) => {
+    deleteDocumentTemplate(doc.id)
+      .catch((err) => {
+        console.log(err)
+        alert("Failed to delete document")
+      })
+  }
 
   const handleFileInput = (e: SyntheticEvent) => {
     e.preventDefault()
@@ -28,29 +35,16 @@ export default function Documents() {
       name: selectedFile.name,
       file: selectedFile,
     })
+      .then(() => {
+        target.value = ''
+      })
       .catch((err) => {
         console.log(err)
         alert("Failed to upload document")
       })
   }
 
-  const handleView = (id: string) => {
-    router.push(`/f/${id}`)
-  }
-
-  const handleEdit = (doc: any) => {
-    router.push(`/documents/${doc.id}`)
-  }
-
-  const handleDelete = (doc: any) => {
-    deleteDocumentTemplate(doc.id)
-      .catch((err) => {
-        console.log(err)
-        alert("Failed to delete document")
-      })
-  }
-
-  const handleDownload = (doc: any) => {
+  const handleDownload = (doc: IDocumentTemplate) => {
     downloadDocumentTemplate(doc.id)
       .catch((err) => {
         console.log(err)
@@ -93,18 +87,15 @@ export default function Documents() {
               </tr>
             </thead>
             <tbody>
-              {documentTemplates.map((doc) => (
+              {documentTemplates.map((doc: IDocumentTemplate) => (
                 <tr key={doc.id}>
-                  <td scope="row">
+                  <td>
                     <Link href={`/documents/${doc.id}`}>
                       <a>{doc.name}</a>
                     </Link>
                   </td>
                   <td>{doc.createdAt}</td>
                   <td>{doc.updatedAt}</td>
-                  <td>
-                    <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc)}>Open</button>
-                  </td>
                   <td>
                     <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc)}>Edit</button>
                   </td>

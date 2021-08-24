@@ -1,90 +1,50 @@
-import { useState, useEffect, SyntheticEvent, FormEvent } from 'react'
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import React, { SyntheticEvent } from 'react'
 import { useSession } from 'next-auth/client'
-import axios from 'axios'
+import Link from 'next/link'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-import { DocumentTemplate } from '@prisma/client'
-import { useRouter } from 'next/router'
-import Link from 'next/link'
+import Header from '../../components/header'
+import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
+import { IDocumentTemplate } from '../../lib/types/api'
+import Footer from '../../components/footer'
 
-export default function Documents () {
-  const router = useRouter()
-  const [ session, loading ] = useSession()
-  const [ content , setContent ] = useState()
-  const [ selectedFile, setSelectedFile ] = useState<null | File>(null);
-  const [ documentTemplates, setDocumentTemplates ] = useState<[] | [doc: DocumentTemplate]>([]);
+export default function Documents() {
+  const [session, loading] = useSession()
+  const { documentTemplates } = useDocumentTemplates(session)
 
-  const fetchDocuments = async () => {
-    if (session) {
-      axios
-        .get(`/api/documents`)
-        .then((res) => {
-          const { content, data } = res.data;
-          if (content) { setContent(content) }
-          if (data) { setDocumentTemplates(data) }
-        })
-        .catch((err) => alert("Failed to load document"))
-    }
+  const handleDelete = (doc: IDocumentTemplate) => {
+    deleteDocumentTemplate(doc.id)
+      .catch((err) => {
+        console.log(err)
+        alert("Failed to delete document")
+      })
   }
-
-  // Fetch content from protected route
-  useEffect(()=>{
-    fetchDocuments()
-  },[session])
 
   const handleFileInput = (e: SyntheticEvent) => {
-    const target = e.target as HTMLInputElement
-    setSelectedFile(target.files![0])
-  }
-
-  const submitForm = (e: FormEvent) => {
     e.preventDefault()
+    const target = e.target as HTMLInputElement
+    const selectedFile = target.files![0]
 
-    if (selectedFile == null) {
-      alert("Please select file")
-      return
-    }
-
-    const formData = new FormData()
-    formData.append("name", selectedFile.name)
-    formData.append("file", selectedFile)
-  
-    axios
-      .post('/api/documents', formData)
-      .then((res) => {
-        const { id } = res.data.data;
-        const form = e.target as HTMLFormElement
-        const fileInput = form.querySelector('input[type="file"]')! as HTMLInputElement
-        fileInput.value = ''
-        if (id) {
-          handleEdit(id)
-          return
-        }
-        fetchDocuments()
-        alert("File Upload Success")
-      })
-      .catch((err) => alert("File Upload Error"))
-  }
-
-  const handleView = (id: string) => {
-    router.push(`/f/${id}`)
-  }
-
-  const handleEdit = (id: string) => {
-    router.push(`/documents/${id}`)
-  }
-
-  const handleDelete = (id: string) => {
-    axios
-      .delete(`/api/documents/${id}`)
-      .then((res) => {
-        fetchDocuments()
-        alert("File Deleted Successfully")
+    uploadDocumentTemplate({
+      name: selectedFile.name,
+      file: selectedFile,
+    })
+      .then(() => {
+        target.value = ''
       })
       .catch((err) => {
-        console.error(err)
-        alert("File Delete Error")
+        console.log(err)
+        alert("Failed to upload document")
+      })
+  }
+
+  const handleDownload = (doc: IDocumentTemplate) => {
+    downloadDocumentTemplate(doc.id)
+      .catch((err) => {
+        console.log(err)
+        alert("Failed to download document")
       })
   }
 
@@ -92,53 +52,78 @@ export default function Documents () {
   if (typeof window !== 'undefined' && loading) return null
 
   // If no session exists, display access denied message
-  if (!session) { return  <Layout><AccessDenied/></Layout> }
+  if (!session) { return <Layout><AccessDenied /></Layout> }
 
   // If session exists, display content
   return (
-    <div className="container">
-      <h1 className="display-4">
-        <Link href="/"><a type="button" className="btn btn-link">&#8592;</a></Link>
-        {'Documents'}
-      </h1>
-      <p>{content || "\u00a0"}</p>
-      {content && <> 
-        <p>To get started you can <a href="https://drive.google.com/file/d/1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr/view">preview</a> or <a href="https://drive.google.com/uc?export=download&id=1sDzg86QQPQnDxD61Ia_MHqzz-0jHDeNr">download</a> the getting started template .docx file.</p>
-        <form className="input-group" onSubmit={submitForm}>
-          <input className="form-control" type="file" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"/>
-          <input className="btn btn-outline-secondary" type="submit" value="Upload"/>
-        </form>
-      </>}
-      {documentTemplates != null && 
-        (<table className="table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Created at</th>
-              <th scope="col">Updated at</th>
-              <th scope="col" colSpan={3}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-          {documentTemplates.map((doc) => (
-            <tr key={doc.id}>
-              <td scope="row">{doc.fileName}</td>
-              <td>{doc.createdAt}</td>
-              <td>{doc.updatedAt}</td>
-              <td>
-                <button type="button" className="btn btn-light w-100" onClick={() => handleView(doc.id)}>Open</button>
-              </td>
-              <td>
-                <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc.id)}>Edit</button>
-              </td>
-              <td>
-                <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-          </tbody>
-        </table>)
-      }
+    <div className="container d-flex flex-column min-vh-100">
+      <Header />
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
+          <li className="breadcrumb-item active" aria-current="page">Documents</li>
+        </ol>
+      </nav>
+      <div className="pb-2">
+        <h1 className="display-5">
+          Documents
+        </h1>
+        <label htmlFor="docxFile" className="form-label">Upload your .docx template to get a web form.</label>
+        <input className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+      </div>
+      {(documentTemplates != null && documentTemplates.length) ?
+        (<div className="table-responsive">
+          <table className="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created at</th>
+                <th scope="col">Updated at</th>
+                <th scope="col" colSpan={3}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {documentTemplates.map((doc: IDocumentTemplate) => (
+                <tr key={doc.id}>
+                  <td>
+                    <Link href={`/documents/${doc.id}`}>
+                      <a>{doc.name}</a>
+                    </Link>
+                  </td>
+                  <td>{doc.createdAt}</td>
+                  <td>{doc.updatedAt}</td>
+                  <td>
+                    <Link
+                      passHref
+                      href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}
+                    >
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        type="button"
+                        className="btn btn-light w-100"
+                      >
+                        Open
+                      </a>
+                    </Link>
+                  </td>
+                  <td>
+                    <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc)}>Download</button>
+                  </td>
+                  <td>
+                    <button type="button" className="btn btn-dark w-100" onClick={() => handleDelete(doc)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        ) : (
+          <div className="alert alert-light" role="alert">
+            No files uploaded. To get started please select a .docx!
+          </div>
+        )}
+      <Footer />
     </div>
   )
 }

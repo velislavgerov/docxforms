@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import Providers from "next-auth/providers"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 
-import prisma from '../../../lib/prisma'
+import prisma from '../../../lib/db/prisma'
 
 export default NextAuth({
   providers: [
@@ -19,6 +19,7 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: async (session, user) => {
+      // eslint-disable-next-line no-param-reassign
       session.userId = user.id as string;    
       return Promise.resolve(session);
     }

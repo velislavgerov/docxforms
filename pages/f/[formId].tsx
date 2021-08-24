@@ -1,39 +1,37 @@
-import { useState } from 'react'
+import React from 'react'
 import { useSession } from 'next-auth/client'
 import axios from 'axios'
-
-import prisma from '../../lib/prisma'
-
 import { useRouter } from 'next/router'
-import { withTheme } from '@rjsf/core';
+import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
-import { Context } from 'docx-templates/lib/types'
-import { GetServerSidePropsContext } from 'next'
+
+import prisma from '../../lib/db/prisma'
+import Header from '../../components/header'
+import Footer from '../../components/footer'
 
 const Form = withTheme(Bootstrap4Theme)
 
 export interface DocumentProps {
   id: string
   schema: object
-  uiSchema: object 
+  uiSchema: object
 }
 
-export default function Document (props: DocumentProps) {
+export default function Document({ schema, uiSchema }: DocumentProps) {
   const router = useRouter()
-  const [ session, loading ] = useSession()
-  const [data, setData] = useState()
+  const [loading] = useSession()
 
   const { formId } = router.query
 
-  const handleSubmit = async () => {
-    if (formId != null && data != null) {
-      console.log('data', data)
+  const handleSubmit = async (data: { formData: any }) => {
+    const { formData } = data;
+    if (formId != null) {
       axios({
-          method: 'POST',
-          url: `/api/f/${formId}`,
-          responseType: 'blob',
-          data
-        })
+        method: 'POST',
+        url: `/api/f/${formId}`,
+        responseType: 'blob',
+        data: formData
+      })
         .then((res) => {
           console.log(res)
           const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -43,9 +41,9 @@ export default function Document (props: DocumentProps) {
           const disposition = res.headers['content-disposition'];
           // source: https://stackoverflow.com/a/40940790
           if (disposition && disposition.indexOf('attachment') !== -1) {
-            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-            var matches = filenameRegex.exec(disposition)
-            if (matches != null && matches[1]) { 
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+            const matches = filenameRegex.exec(disposition)
+            if (matches != null && matches[1]) {
               filename = matches[1].replace(/['"]/g, '')
             }
           }
@@ -66,14 +64,14 @@ export default function Document (props: DocumentProps) {
   if (typeof window !== 'undefined' && loading) return null
 
   return (
-    <div className="container">
+    <div className="container d-flex flex-column min-vh-100">
+      <Header />
       <Form
-        schema={props.schema}
-        uiSchema={props.uiSchema}
-        formData={data}
-        onChange={e => setData(e.formData)}
+        schema={schema}
+        uiSchema={uiSchema}
         onSubmit={handleSubmit}
       />
+      <Footer />
     </div>
   )
 }
@@ -81,21 +79,22 @@ export default function Document (props: DocumentProps) {
 export async function getServerSideProps(context: any) {
   const { params: { formId } } = context
 
-  const documentTemplate = await prisma.documentTemplate.findUnique({
+  const form = await prisma.form.findUnique({
     where: {
       id: formId,
     },
     select: {
       id: true,
-      forms: true,
+      schema: true,
+      uiSchema: true
     },
   })
 
   return {
     props: {
-      id: documentTemplate!.id,
-      schema: documentTemplate!.forms[0].schema,
-      uiSchema: documentTemplate!.forms[0].uiSchema,
+      id: form!.id,
+      schema: form!.schema,
+      uiSchema: form!.uiSchema,
     },
   }
 }

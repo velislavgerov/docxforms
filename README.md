@@ -1,2 +1,2 @@
 # docxforms
-Create web forms from .docx template files
+Create web forms to fill .docx files online.

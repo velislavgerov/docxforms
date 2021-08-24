@@ -10,6 +10,8 @@ import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 
 import prisma from '../../lib/db/prisma'
+import Header from '../../components/header'
+import Footer from '../../components/footer'
 
 const Form = withTheme(Bootstrap4Theme)
 
@@ -66,19 +68,14 @@ export default function Document(props: DocumentProps) {
   if (typeof window !== 'undefined' && loading) return null
 
   return (
-    <div className="container py-4">
-      <header className="pb-3 mb-4 border-bottom">
-        <Link href="/">
-          <a className="d-flex align-items-center text-dark text-decoration-none">
-            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
-          </a>
-        </Link>
-      </header>
+    <div className="container d-flex flex-column min-vh-100">
+      <Header />
       <Form
         schema={props.schema}
         uiSchema={props.uiSchema}
         onSubmit={handleSubmit}
       />
+      <Footer />
     </div>
   )
 }

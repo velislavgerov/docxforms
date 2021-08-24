@@ -10,6 +10,7 @@ import useDocumentTemplate from '../../lib/hooks/use-document'
 import { deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import DocumentForms from '../../components/document-forms'
 import DocumentSubmissions from '../../components/document-submissions'
+import Footer from '../../components/footer'
 
 export default function Document() {
   const router = useRouter()
@@ -41,7 +42,7 @@ export default function Document() {
 
   // If session exists, display content
   return (
-    <div className="container">
+    <div className="container d-flex flex-column min-vh-100">
       <Header />
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
@@ -57,16 +58,19 @@ export default function Document() {
         <h1 className="display-5">
           {documentTemplate.name}
         </h1>
+        <p className="lead">This is a lead paragraph with some useful information about documents.</p>
         <div className="d-grid gap-2 d-sm-flex">
+          <button type="button" className="btn btn-light flex-grow-1" onClick={handleDownload}>Preview</button>
           <button type="button" className="btn btn-warning flex-grow-1" onClick={handleDownload}>Download</button>
           <button type="button" className="btn btn-dark flex-grow-1" onClick={handleDelete}>Delete</button>
         </div>
-        <div className="py-4">
+        <div className="pt-4">
           <DocumentForms documentTemplateId={documentTemplate.id} />
         </div>
-        <div className="py-4">
+        <div className="pt-4">
           <DocumentSubmissions documentTemplateId={documentTemplate.id} />
         </div>
+        <Footer />
       </>}
     </div>
   )

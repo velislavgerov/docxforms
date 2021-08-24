@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next"
 import prisma from '../../../lib/db/prisma'
 import errorHandler from "../../../lib/utils/error-handler"
 import formidable from 'formidable'
+import { getSession } from "next-auth/client"
 
 const PizZip = require('pizzip')
 
@@ -18,6 +19,7 @@ export default async function protectedHandler(
   res: NextApiResponse
 ) {
   const { method, query } = req
+  const session = await getSession({ req })
   const formId  = query.formId as string
   
   switch(method) {
@@ -88,6 +90,7 @@ export default async function protectedHandler(
             fileType: form!.documentTemplate!.fileType,
             fileSize: Buffer.byteLength(buf),
             file: buf,
+            userId: session != null ? session.userId : null,
           }
         })
 

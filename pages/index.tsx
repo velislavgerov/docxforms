@@ -8,14 +8,14 @@ export default function Home() {
   const [session, loading] = useSession()
 
   return (
-    <div className="d-flex flex-column h-100">
+    <div className="d-flex flex-column min-vh-100">
       <Head>
         <title>.docxforms</title>
         <meta name="description" content="Create web forms to fill Microsoft Word documents" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex-shrink-0">
+      <main className="flex-shrink-0 mt-auto">
         <div className="px-4 py-5 my-5 text-center">
           <Link href="/">
             <a className="text-dark text-decoration-none">

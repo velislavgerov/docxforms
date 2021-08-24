@@ -8,11 +8,12 @@ import AccessDenied from '../../components/access-denied'
 import Header from '../../components/header'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate } from '../../lib/types/api'
+import Footer from '../../components/footer'
 
 export default function Documents() {
   const router = useRouter()
   const [session, loading] = useSession()
-  const { documentTemplates } = useDocumentTemplates()
+  const { documentTemplates } = useDocumentTemplates(session)
 
   const handleEdit = (doc: IDocumentTemplate) => {
     router.push(`/documents/${doc.id}`)
@@ -60,7 +61,7 @@ export default function Documents() {
 
   // If session exists, display content
   return (
-    <div className="container">
+    <div className="container d-flex flex-column min-vh-100">
       <Header />
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
@@ -97,7 +98,7 @@ export default function Documents() {
                   <td>{doc.createdAt}</td>
                   <td>{doc.updatedAt}</td>
                   <td>
-                    <button type="button" className="btn btn-warning w-100" onClick={() => handleEdit(doc)}>Edit</button>
+                    <button type="button" className="btn btn-light w-100" onClick={() => handleEdit(doc)}>Preview</button>
                   </td>
                   <td>
                     <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc)}>Download</button>
@@ -115,6 +116,7 @@ export default function Documents() {
             No files uploaded. To get started please select a .docx!
           </div>
         )}
+      <Footer />
     </div>
   )
 }

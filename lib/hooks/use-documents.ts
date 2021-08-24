@@ -1,5 +1,6 @@
 import useSWR, { mutate } from 'swr'
 import axios from 'axios'
+import { Session } from 'next-auth'
 import { IDocumentTemplate, IDocumentTemplateUpdateParams, IDocumentTemplateUploadParams } from '../types/api'
 
 const uploadDocumentTemplate = (params: IDocumentTemplateUploadParams) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
@@ -62,11 +63,11 @@ const downloadDocumentTemplate = (documentTemplateId: string) => axios({
     link.click();
   })
   
-function useDocumentTemplates () {
-  const { data, error } = useSWR(`/api/documents`)
+function useDocumentTemplates (session: Session | null) {
+  const { data, error } = useSWR(session != null ? `/api/documents` : null)
 
   return {
-    documentTemplates: data,
+    documentTemplates: <null | [] | [IDocumentTemplate]>data,
     isLoading: !error && !data,
     isError: error,
   }

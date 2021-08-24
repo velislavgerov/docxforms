@@ -29,7 +29,7 @@ function useDocumentForms (documentTemplateId: string, session: Session) {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/forms` : null)
 
   return {
-    forms: data,
+    forms: <null | [] | [IForm]>data,
     isLoading: !error && !data,
     isError: error,
   }

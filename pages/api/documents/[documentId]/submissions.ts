@@ -28,7 +28,11 @@ export default async function protectedHandler(
             userId: session.userId 
           },
           include: {
-            submissions: true,
+            submissions: {
+              include: {
+                user: true
+              },
+            },
           }
         })
 
@@ -36,7 +40,11 @@ export default async function protectedHandler(
           id: submission.id,
           fileUrl: getServerURL(`/api/submissions/${submission.id}/file`),
           formData: submission.content,
-          user: null
+          user: submission.user != null ? {
+            name: submission.user!.name,
+            email: submission.user!.email,
+          } : null,
+          createdAt: submission.createdAt,
         }))
 
         return res.status(200).json(submissions)

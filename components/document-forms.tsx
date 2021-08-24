@@ -73,7 +73,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   if (forms == null || isLoading) {
     return (
       <p className="lead mb-4">
-        Loading...
+        Loading document forms...
       </p>
     )
   }
@@ -139,7 +139,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
               <tr key={form.id}>
                 <td>{form.schema.title}</td>
                 <td>{form.schema.description}</td>
-                <td>Private</td>
+                <td>Public</td>
                 <td>
                   <Link href={`/f/${form.id}`}>
                     <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>

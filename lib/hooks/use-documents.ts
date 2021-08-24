@@ -32,8 +32,6 @@ const deleteDocumentTemplate = (documentTemplateId: string) => mutate(`/api/docu
   mutate(`/api/documents/${documentTemplateId}/submissions`)
 
   const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== documentTemplateId)
-
-
   return [...filteredDocumentTemplates]
 })
 

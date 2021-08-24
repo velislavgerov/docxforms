@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/client'
@@ -52,7 +53,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
     setConfirm({
       show: true,
       title: 'Confirmation Required',
-      body: 'This action is irreversible. Are you sure you want to delete this form?',
+      body: 'This action is irreversible. Are you sure you want to delete this form and all related submissions?',
       actionBtn: deleteBtn,
       onCancel: () => setConfirm(null),
     })
@@ -127,8 +128,8 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
             <tr>
               <th scope="col">Name</th>
               <th scope="col">Description</th>
+              <th scope="col">Dedicated URL</th>
               <th scope="col">Visibility</th>
-              <th scope="col">URL</th>
               <th scope="col">Created at</th>
               <th scope="col">Updated at</th>
               <th scope="col">Actions</th>
@@ -139,12 +140,12 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
               <tr key={form.id}>
                 <td>{form.schema.title}</td>
                 <td>{form.schema.description}</td>
-                <td>Public</td>
                 <td>
                   <Link href={`/f/${form.id}`}>
                     <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>
                   </Link>
                 </td>
+                <td>Public</td>
                 <td>{form.createdAt}</td>
                 <td>{form.updatedAt}</td>
                 <td>
@@ -154,7 +155,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
                       className="btn btn-light flex-grow-1"
                       onClick={() => handlePreview(form)}
                     >
-                      Preview
+                      Open
                     </button>
                     <button
                       type="button"

@@ -19,6 +19,7 @@ export default NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     session: async (session, user) => {
+      // eslint-disable-next-line no-param-reassign
       session.userId = user.id as string;    
       return Promise.resolve(session);
     }

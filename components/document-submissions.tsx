@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/client'
@@ -62,7 +63,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
       <h2>Manage Submissions</h2>
       <p className="lead">This is a lead paragraph with some useful information about submissions.</p>
       <div className="alert alert-light" role="alert">
-        No submissions have been made for this document template.
+        No submissions have been made for this document.
       </div>
     </>)
   }
@@ -80,7 +81,6 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
               <th scope="col">Submitted by, Name</th>
               <th scope="col">Submitted by, Email</th>
               <th scope="col">Form Data, JSON</th>
-              <th scope="col">File</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -96,12 +96,30 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
                   </pre>
                 </td>
                 <td>
-                  <Link href={`${submission.fileUrl}`}>
-                    <a target="_blank" rel="noopener noreferrer">Download</a>
-                  </Link>
-                </td>
-                <td>
                   <div className="d-grid gap-2 d-sm-flex">
+                    <Link
+                      passHref
+                      href={`https://view.officeapps.live.com/op/embed.aspx?src=${submission.fileUrl}`}
+                    >
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        type="button"
+                        className="btn btn-light flex-grow-1"
+                      >
+                        Open
+                      </a>
+                    </Link>
+                    <Link href={`${submission.fileUrl}`}>
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        type="button"
+                        className="btn btn-warning flex-grow-1"
+                      >
+                        Download
+                      </a>
+                    </Link>
                     <button
                       type="button"
                       className="btn btn-dark flex-grow-1"

@@ -1,3 +1,6 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable dot-notation */
+/* eslint-disable no-param-reassign */
 import Docxtemplater from 'docxtemplater'
 
 import errorHandler from "./error-handler";
@@ -7,7 +10,7 @@ const PizZip = require('pizzip')
 const startCase = require('lodash.startcase')
 
 interface getSchemaInput {
-  tags: object
+  tags: any
   title: string
   description: string 
 }
@@ -18,6 +21,7 @@ export function getTags (buffer: Buffer) {
   let doc
 
   try {
+    // eslint-disable-next-line no-unused-vars
     doc = new Docxtemplater(zip, {
       paragraphLoop: true,
       linebreaks: true,
@@ -31,6 +35,20 @@ export function getTags (buffer: Buffer) {
   return iModule.getAllTags()
 }
 
+export const createCleanLabel = (label: string): string => startCase(label.replace('_', ' '));
+
+const getLabel = (key: string): string => {
+  let label = key
+  
+  if (key.startsWith('if_')) {
+    label = key.replace('if_', '')
+  } else if (key.startsWith('list_')) {
+    label = key.replace('list_', '')
+  }
+
+  return createCleanLabel(label);
+};
+
 function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
   schema: any,
   jsonKey: string,
@@ -38,7 +56,7 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
   uiSchema: any,
   addToUiOrder?: boolean
 }) {
-  if( jsonObj !== null && typeof jsonObj == "object" ) {
+  if( jsonObj !== null && typeof jsonObj === "object" ) {
     jsonObj['title'] = getLabel(jsonKey)
 
     if (addToUiOrder && !uiSchema['ui:order'].some((key: string) => key === jsonKey)) {
@@ -102,20 +120,6 @@ function transform({ schema, jsonKey, jsonObj, uiSchema, addToUiOrder }: {
     } 
   }
 }
-
-export const createCleanLabel = (label: string): string => startCase(label.replace('_', ' '));
-
-const getLabel = (key: string): string => {
-  let label = key
-  
-  if (key.startsWith('if_')) {
-    label = key.replace('if_', '')
-  } else if (key.startsWith('list_')) {
-    label = key.replace('list_', '')
-  }
-
-  return createCleanLabel(label);
-};
 
 export function getSchemas({ tags, title, description } : getSchemaInput) {
   const schema: any = {

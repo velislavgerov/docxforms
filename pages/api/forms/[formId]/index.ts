@@ -60,6 +60,12 @@ export default async function protectedHandler(
       }
     case 'DELETE':
       try {
+        await prisma.submission.deleteMany({
+          where: {
+            formId,
+          }
+        })
+
         await prisma.form.delete({
           where: {
             id: formId,
@@ -74,7 +80,6 @@ export default async function protectedHandler(
         })
       }
     default:
-      //res.setHeaders("Allow", ["GET", "POST"])
       return res.status(405).json({
         success: false,
         error: `Method '${method}' Not Allowed`

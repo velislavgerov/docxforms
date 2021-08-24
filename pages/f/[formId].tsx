@@ -1,11 +1,7 @@
 import React from 'react'
 import { useSession } from 'next-auth/client'
 import axios from 'axios'
-
-
 import { useRouter } from 'next/router'
-import Link from 'next/link'
-
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 
@@ -21,9 +17,9 @@ export interface DocumentProps {
   uiSchema: object
 }
 
-export default function Document(props: DocumentProps) {
+export default function Document({ schema, uiSchema }: DocumentProps) {
   const router = useRouter()
-  const [session, loading] = useSession()
+  const [loading] = useSession()
 
   const { formId } = router.query
 
@@ -45,8 +41,8 @@ export default function Document(props: DocumentProps) {
           const disposition = res.headers['content-disposition'];
           // source: https://stackoverflow.com/a/40940790
           if (disposition && disposition.indexOf('attachment') !== -1) {
-            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-            var matches = filenameRegex.exec(disposition)
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+            const matches = filenameRegex.exec(disposition)
             if (matches != null && matches[1]) {
               filename = matches[1].replace(/['"]/g, '')
             }
@@ -71,8 +67,8 @@ export default function Document(props: DocumentProps) {
     <div className="container d-flex flex-column min-vh-100">
       <Header />
       <Form
-        schema={props.schema}
-        uiSchema={props.uiSchema}
+        schema={schema}
+        uiSchema={uiSchema}
         onSubmit={handleSubmit}
       />
       <Footer />

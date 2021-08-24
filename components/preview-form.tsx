@@ -1,4 +1,4 @@
-import React, { MouseEventHandler } from 'react'
+import React, { MouseEventHandler, useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
@@ -19,8 +19,9 @@ function PreviewForm(props: PreviewFormProps) {
     onCancel,
   } = props
 
-  const handleSubmit = async (data: { formData: any }) => {
-    const { formData } = data;
+  const [formData, setFormData] = useState();
+
+  const handleSubmit = async () => {
     if (form.id != null) {
       axios({
         method: 'POST',
@@ -61,12 +62,19 @@ function PreviewForm(props: PreviewFormProps) {
         <Form
           schema={form.schema}
           uiSchema={form.uiSchema}
+          onChange={e => setFormData(e.formData)}
+          formData={formData}
           onSubmit={handleSubmit}
-        />
+        >
+          {true}
+        </Form>
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onCancel}>
           Close
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Submit
         </Button>
       </Modal.Footer>
     </Modal>

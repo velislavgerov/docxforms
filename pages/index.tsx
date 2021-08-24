@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 
 import { signIn, signOut, useSession } from 'next-auth/client'
+import Footer from '../components/footer'
 
 export default function Home() {
   const [session, loading] = useSession()
@@ -49,18 +50,7 @@ export default function Home() {
             </div>)}
         </div>
       </main>
-
-      <footer className="footer mt-auto py-3 text-center">
-        <div className="container">
-          <a
-            href="https://gerov.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="text-muted">&copy;2021, gerov.dev</span>
-          </a>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

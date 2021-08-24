@@ -8,6 +8,7 @@ import { Prisma } from "@prisma/client"
 import prisma from '../../../lib/db/prisma'
 import { getSchemas, getTags } from "../../../lib/utils/document"
 import getServerURL from "../../../lib/utils/server"
+import { FormidableData } from "../../../lib/types/formidable"
 
 export const config = {
   api: {
@@ -86,11 +87,13 @@ export default async function protectedHandler(
         const data: FormidableData = await new Promise((resolve, reject) => {
           const form = formidable({ multiples: true })
           form.parse(req, (err, fields, files) => {
+            // eslint-disable-next-line prefer-promise-reject-errors
             if (err) reject({ err })
             resolve({ err, fields, files })
           }) 
         })
-        const { files: { file } } = data;
+        let { files: { file } } = data;
+        file = file as formidable.File
         const buffer = fs.readFileSync(file.path)
         const tags = getTags(buffer)
         const { schema, uiSchema } = getSchemas({

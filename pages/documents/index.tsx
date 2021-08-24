@@ -1,6 +1,6 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { SyntheticEvent } from 'react'
 import { useSession } from 'next-auth/client'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 import Layout from '../../components/layout'
@@ -11,13 +11,8 @@ import { IDocumentTemplate } from '../../lib/types/api'
 import Footer from '../../components/footer'
 
 export default function Documents() {
-  const router = useRouter()
   const [session, loading] = useSession()
   const { documentTemplates } = useDocumentTemplates(session)
-
-  const handleEdit = (doc: IDocumentTemplate) => {
-    router.push(`/documents/${doc.id}`)
-  }
 
   const handleDelete = (doc: IDocumentTemplate) => {
     deleteDocumentTemplate(doc.id)
@@ -98,7 +93,19 @@ export default function Documents() {
                   <td>{doc.createdAt}</td>
                   <td>{doc.updatedAt}</td>
                   <td>
-                    <button type="button" className="btn btn-light w-100" onClick={() => handleEdit(doc)}>Preview</button>
+                    <Link
+                      passHref
+                      href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}
+                    >
+                      <a
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        type="button"
+                        className="btn btn-light w-100"
+                      >
+                        Open
+                      </a>
+                    </Link>
                   </td>
                   <td>
                     <button type="button" className="btn btn-warning w-100" onClick={() => handleDownload(doc)}>Download</button>

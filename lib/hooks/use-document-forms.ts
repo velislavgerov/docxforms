@@ -20,12 +20,13 @@ const updateDocumentForm = (documentTemplateId: string, formId: string, params: 
 
 const deleteDocumentForm = (documentTemplateId: string, formId: string) => mutate(`/api/documents/${documentTemplateId}/forms`, async (forms: [ IForm ]) => {
   await axios.delete(`/api/forms/${formId}`)
+  mutate(`/api/documents/${documentTemplateId}/submissions`)
 
   const filteredForms = forms.filter((form: IForm) => form.id !== formId)
   return [...filteredForms]
 })
 
-function useDocumentForms (documentTemplateId: string, session: Session) {
+function useDocumentForms (documentTemplateId: string | null, session: Session | null) {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/forms` : null)
 
   return {

@@ -60,7 +60,19 @@ export default function Document() {
         </h1>
         <p className="lead">This is a lead paragraph with some useful information about documents.</p>
         <div className="d-grid gap-2 d-sm-flex">
-          <button type="button" className="btn btn-light flex-grow-1" onClick={handleDownload}>Preview</button>
+          <Link
+            passHref
+            href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}
+          >
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              type="button"
+              className="btn btn-light flex-grow-1"
+            >
+              Open
+            </a>
+          </Link>
           <button type="button" className="btn btn-warning flex-grow-1" onClick={handleDownload}>Download</button>
           <button type="button" className="btn btn-dark flex-grow-1" onClick={handleDelete}>Delete</button>
         </div>

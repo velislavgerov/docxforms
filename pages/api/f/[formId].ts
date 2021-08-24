@@ -1,10 +1,11 @@
 import Docxtemplater from "docxtemplater"
 import type { NextApiRequest, NextApiResponse } from "next"
+import formidable from 'formidable'
+import { getSession } from "next-auth/client"
 
 import prisma from '../../../lib/db/prisma'
 import errorHandler from "../../../lib/utils/error-handler"
-import formidable from 'formidable'
-import { getSession } from "next-auth/client"
+import { FormidableData } from "../../../lib/types/formidable"
 
 const PizZip = require('pizzip')
 
@@ -29,6 +30,7 @@ export default async function protectedHandler(
           const form = formidable()
 
           form.parse(req, (err, fields, files) => {
+            // eslint-disable-next-line prefer-promise-reject-errors
             if (err) reject({ err })
             resolve({ err, fields, files })
           }) 

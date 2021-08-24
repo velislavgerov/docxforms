@@ -1,7 +1,7 @@
 {
   "name": "docxforms",
   "packageManager": "yarn@3.0.0",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Create web forms from .dotx files",
   "private": true,
   "scripts": {

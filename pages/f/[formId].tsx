@@ -19,7 +19,8 @@ export interface DocumentProps {
 
 export default function Document({ schema, uiSchema }: DocumentProps) {
   const router = useRouter()
-  const [loading] = useSession()
+  // eslint-disable-next-line no-unused-vars
+  const [session, loading] = useSession()
 
   const { formId } = router.query
 

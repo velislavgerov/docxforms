@@ -98,11 +98,9 @@ export default async function protectedHandler(
         const tags = getTags(buffer)
         const { schema, uiSchema } = getSchemas({
           tags,
-          title: 'Default Form',
+          title: `Default Form - ${file.name!}`,
           description: 'This form was automatically created when you uploaded the document.'
         })
-        console.log('schema', schema)
-        console.log('uiSchema', uiSchema)
 
         const documentTemplate = await prisma.documentTemplate.create({
           data: {

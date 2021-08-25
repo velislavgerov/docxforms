@@ -1,18 +1,26 @@
-/* eslint-disable vars-on-top */
-/* eslint-disable no-var */
-/* eslint-disable no-unused-vars */
-
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
 declare global {
-  var prisma: PrismaClient | undefined
+  // eslint-disable-next-line no-unused-vars
+  namespace NodeJS {
+    // eslint-disable-next-line no-unused-vars
+    interface Global {
+      prisma: any;
+    }
+  }
 }
 
-// eslint-disable-next-line import/prefer-default-export
-const prisma = global.prisma || new PrismaClient({
-  log: ['query'],
-})
+// add prisma to the NodeJS global type
+// eslint-disable-next-line no-undef
+interface CustomNodeJsGlobal extends NodeJS.Global {
+  prisma: PrismaClient
+}
 
-if (process.env.NODE_ENV === 'production') global.prisma = prisma
+// Prevent multiple instances of Prisma Client in development
+declare const global: CustomNodeJsGlobal
+
+const prisma = global.prisma || new PrismaClient()
+
+if (process.env.NODE_ENV === 'development') global.prisma = prisma
 
 export default prisma

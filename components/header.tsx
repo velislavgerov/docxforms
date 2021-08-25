@@ -19,17 +19,18 @@ export default function Header() {
             {!session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
             {session &&
               <Dropdown>
-                <Dropdown.Toggle id="dropdown-basic" variant="anchor">
-                  <img src={session.user?.image == null ? undefined : session.user?.image} alt={session.user?.name == null ? undefined : session.user?.name} className="rounded-circle" width="32" height="32" />
+                <Dropdown.Toggle id="dropdown-basic" variant="anchor" className="d-flex align-items-center gap-2">
+                  <img src={session.user?.image == null ? undefined : session.user?.image} alt="mdo" className="rounded-circle" width="32" height="32" />
+                  {session.user!.name}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu align="right">
-                  <Dropdown.Header>
-                    <h5>
-                      <strong>{session.user!.name}</strong>
-                    </h5>
-                    {session.user!.email}
-                  </Dropdown.Header>
+                  <Dropdown.Header>{session.user!.email}</Dropdown.Header>
+                  <Dropdown.Divider />
+                  <Link href="/documents" passHref>
+                    <Dropdown.Item>Documents</Dropdown.Item>
+                  </Link>
+                  <Dropdown.Item disabled href="/submissions">Submissions</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={
                     () => signOut()

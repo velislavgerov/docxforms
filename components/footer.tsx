@@ -9,8 +9,9 @@ export default function Footer() {
           <a
             target="_blank"
             rel="noopener noreferrer"
+            className="link-secondary"
           >
-            <span className="text-muted">&copy;2021, gerov.dev</span>
+            &copy;2021, gerov.dev
           </a>
         </Link>
       </div>

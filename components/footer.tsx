@@ -3,8 +3,8 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="footer py-3 mt-4 text-center border-top">
-      <div className="container">
+    <footer className="footer mt-auto">
+      <div className="container py-3 mt-4 text-center border-top">
         <Link href="https://gerov.dev" passHref>
           <a
             target="_blank"

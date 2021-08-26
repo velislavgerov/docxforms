@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="footer mt-auto py-3 text-center border-top">
+    <footer className="footer py-3 mt-4 text-center border-top">
       <div className="container">
         <Link href="https://gerov.dev" passHref>
           <a

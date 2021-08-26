@@ -9,6 +9,7 @@ import type { AppProps } from 'next/app'
 import { Provider } from 'next-auth/client'
 import { SWRConfig } from 'swr'
 import axios from 'axios'
+import Layout from '../components/layout'
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data)
 
@@ -16,7 +17,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <SWRConfig value={{ fetcher }}>
       <Provider session={pageProps.session}>
-        <Component {...pageProps} />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
       </Provider>
     </SWRConfig>
   )

@@ -3,13 +3,12 @@ import Link from 'next/link'
 
 import { signIn, useSession } from 'next-auth/client'
 import Features from '../components/features'
-import Layout from '../components/layout'
 
 export default function Home() {
   const [session] = useSession()
 
   return (
-    <Layout>
+    <>
       <div className="px-4 py-3 my-3 text-center">
         <Link href="/">
           <a className="text-dark text-decoration-none">
@@ -25,6 +24,6 @@ export default function Home() {
         </>}
       </div >
       <Features />
-    </Layout >
+    </>
   )
 }

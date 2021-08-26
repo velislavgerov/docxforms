@@ -1,7 +1,7 @@
 {
   "name": "docxforms",
   "packageManager": "yarn@3.0.0",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Create web forms from .dotx files",
   "private": true,
   "scripts": {
@@ -44,6 +44,7 @@
     "@types/react": "^17.0.16",
     "axios": "^0.21.1",
     "bootstrap": "^5.1.0",
+    "bootstrap-icons": "^1.5.0",
     "docx-templates": "^4.8.0",
     "docxtemplater": "^3.22.5",
     "express": "^4.17.1",

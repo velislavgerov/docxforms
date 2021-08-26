@@ -1,6 +1,5 @@
 import React from 'react'
 import { useSession } from 'next-auth/client'
-import axios from 'axios'
 import { useRouter } from 'next/router'
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
@@ -8,6 +7,8 @@ import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 import prisma from '../../lib/db/prisma'
 import Header from '../../components/header'
 import Footer from '../../components/footer'
+import { submitForm } from '../../lib/hooks/use-document-forms'
+import { downloadFile } from '../../lib/utils/common'
 
 const Form = withTheme(Bootstrap4Theme)
 
@@ -24,37 +25,15 @@ export default function Document({ schema, uiSchema }: DocumentProps) {
 
   const { formId } = router.query
 
-  const handleSubmit = async (data: { formData: any }) => {
+  const handleSubmit = async (data: { formData: FormData }) => {
     const { formData } = data;
     if (formId != null) {
-      axios({
-        method: 'POST',
-        url: `/api/f/${formId}`,
-        responseType: 'blob',
-        data: formData
-      })
-        .then((res) => {
+      submitForm(formId, formData)
+        .then((res: any) => {
           console.log(res)
-          const url = window.URL.createObjectURL(new Blob([res.data]));
-          const link = document.createElement('a');
-
-          let filename = ''
-          const disposition = res.headers['content-disposition'];
-          // source: https://stackoverflow.com/a/40940790
-          if (disposition && disposition.indexOf('attachment') !== -1) {
-            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-            const matches = filenameRegex.exec(disposition)
-            if (matches != null && matches[1]) {
-              filename = matches[1].replace(/['"]/g, '')
-            }
-          }
-
-          link.href = url;
-          link.setAttribute('download', filename);
-          document.body.appendChild(link);
-          link.click();
+          downloadFile(new Blob([res.data]), res.headers['content-disposition'])
         })
-        .catch((err) => {
+        .catch((err: any) => {
           console.log(err)
           alert("Failed to get document content")
         })

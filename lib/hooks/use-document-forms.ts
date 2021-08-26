@@ -26,6 +26,26 @@ const deleteDocumentForm = (documentTemplateId: string, formId: string) => mutat
   return [...filteredForms]
 })
 
+const submitForm = (formId: string, formData: FormData) => axios({
+  method: 'POST',
+  url: `/api/f/${formId}`,
+  responseType: 'blob',
+  data: formData
+})
+
+const submitDocumentForm = async (documentTemplateId: string, formId: string, formData: FormData | undefined) => {
+  const res = await axios({
+    method: 'POST',
+    url: `/api/f/${formId}`,
+    responseType: 'blob',
+    data: formData
+  })
+
+  mutate(`/api/documents/${documentTemplateId}/submissions`)
+
+  return res
+}
+
 function useDocumentForms (documentTemplateId: string | null, session: Session | null) {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/forms` : null)
 
@@ -36,4 +56,4 @@ function useDocumentForms (documentTemplateId: string | null, session: Session |
   }
 }
 
-export { useDocumentForms, createDocumentForm, updateDocumentForm, deleteDocumentForm }
+export { useDocumentForms, createDocumentForm, updateDocumentForm, deleteDocumentForm, submitForm, submitDocumentForm }

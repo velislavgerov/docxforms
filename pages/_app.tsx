@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import '../styles/globals.css'
 
 import React from 'react'

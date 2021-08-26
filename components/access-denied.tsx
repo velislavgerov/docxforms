@@ -1,17 +1,10 @@
 import React from 'react'
-import { signIn } from 'next-auth/client'
 
 export default function AccessDenied() {
   return (
-    <>
-      <h1>Access Denied</h1>
-      <p>
-        <a href="/api/auth/signin"
-          onClick={(e) => {
-            e.preventDefault()
-            signIn()
-          }}>You must be signed in to view this page</a>
-      </p>
-    </>
+    <div className="text-center auto">
+      <h1 className="display-5 fw-bold">403</h1>
+      <h5 className="text-muted">You are not authorized to view this page.</h5>
+    </div>
   )
 }

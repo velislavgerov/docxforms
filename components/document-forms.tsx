@@ -25,6 +25,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
       show: true,
       onCancel: () => setPreviewForm(null),
       form,
+      documentTemplateId,
     })
   }
 

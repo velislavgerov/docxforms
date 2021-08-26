@@ -1380,6 +1380,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bootstrap-icons@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "bootstrap-icons@npm:1.5.0"
+  checksum: d36851ad6bf315d20589a7a7f4b513f867a4c55d85ac6881644c0261be56185307cde3f1968f326922a7a925c65897543ca9889ab3054e3a0e4a98005fcb7f4a
+  languageName: node
+  linkType: hard
+
 "bootstrap@npm:^5.1.0":
   version: 5.1.0
   resolution: "bootstrap@npm:5.1.0"
@@ -2364,6 +2371,7 @@ __metadata:
     "@typescript-eslint/parser": ^4.29.1
     axios: ^0.21.1
     bootstrap: ^5.1.0
+    bootstrap-icons: ^1.5.0
     docx-templates: ^4.8.0
     docxtemplater: ^3.22.5
     eslint: ^7.32.0

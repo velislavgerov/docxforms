@@ -10,7 +10,7 @@ export default function Header() {
     <header className="pb-3 py-4 mb-4 border-bottom">
       <div className="d-grid gap-3 align-items-center" style={{ gridTemplateColumns: '1fr 2fr' }}>
         <Link href="/">
-          <a className="d-flex align-items-center text-dark text-decoration-none">
+          <a className="d-flex align-items-center text-dark text-decoration-none fw-bold">
             <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
           </a>
         </Link>
@@ -20,7 +20,7 @@ export default function Header() {
             {session &&
               <Dropdown>
                 <Dropdown.Toggle id="dropdown-basic" variant="anchor" className="d-flex align-items-center gap-2">
-                  <img src={session.user?.image == null ? undefined : session.user?.image} alt="mdo" className="rounded-circle" width="32" height="32" />
+                  <img src={session.user?.image == null ? undefined : session.user?.image} alt="" className="rounded-circle" width="32" height="32" />
                   {session.user!.name}
                 </Dropdown.Toggle>
 
@@ -33,7 +33,9 @@ export default function Header() {
                   <Dropdown.Item disabled href="/submissions">Submissions</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item onClick={
-                    () => signOut()
+                    () => signOut({
+                      callbackUrl: `${window.location.origin}`
+                    })
                   }>Sign out</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>}

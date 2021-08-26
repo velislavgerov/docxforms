@@ -2,20 +2,23 @@ import React, { MouseEventHandler, useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
-import axios from 'axios'
+import { submitDocumentForm, submitForm } from '../lib/hooks/use-document-forms'
+import { downloadFile } from '../lib/utils/common'
 
 const Form = withTheme(Bootstrap4Theme)
 
 export interface PreviewFormProps {
   show: boolean
   form: any
+  documentTemplateId: string | undefined
   onCancel: MouseEventHandler
 }
 
-function PreviewForm(props: PreviewFormProps) {
+function PreviewDocumentForm(props: PreviewFormProps) {
   const {
     show,
     form,
+    documentTemplateId,
     onCancel,
   } = props
 
@@ -23,31 +26,12 @@ function PreviewForm(props: PreviewFormProps) {
 
   const handleSubmit = async () => {
     if (form.id != null) {
-      axios({
-        method: 'POST',
-        url: `/api/f/${form.id}`,
-        responseType: 'blob',
-        data: formData
-      })
+      const promise = (documentTemplateId != null) ? submitDocumentForm(documentTemplateId, form.id, formData) : submitForm(form.id, formData)
+      promise
         .then((res) => {
-          const url = window.URL.createObjectURL(new Blob([res.data]));
-          const link = document.createElement('a');
-
-          let filename = ''
-          const disposition = res.headers['content-disposition'];
-          // source: https://stackoverflow.com/a/40940790
-          if (disposition && disposition.indexOf('attachment') !== -1) {
-            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-            const matches = filenameRegex.exec(disposition)
-            if (matches != null && matches[1]) {
-              filename = matches[1].replace(/['"]/g, '')
-            }
-          }
-
-          link.href = url;
-          link.setAttribute('download', filename);
-          document.body.appendChild(link);
-          link.click();
+          const file = new Blob([res.data])
+          const disposition = res.headers['content-disposition']
+          downloadFile(file, disposition)
         })
         .catch((err) => {
           console.log(err)
@@ -81,4 +65,4 @@ function PreviewForm(props: PreviewFormProps) {
   );
 }
 
-export default PreviewForm
+export default PreviewDocumentForm

@@ -1,5 +1,6 @@
 import React from 'react'
-import styles from '../styles/Home.module.css'
+import Footer from './footer'
+import Header from './header'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -7,8 +8,10 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   return (
-    <div className={styles.container}>
-      <main className={styles.main}>{children}</main>
+    <div className="container d-flex flex-column min-vh-100">
+      <Header />
+      <main className="h-100">{children}</main>
+      <Footer />
     </div>
   )
 }

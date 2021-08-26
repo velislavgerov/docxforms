@@ -23,7 +23,7 @@ export default function Document({ schema, uiSchema }: DocumentProps) {
   // eslint-disable-next-line no-unused-vars
   const [session, loading] = useSession()
 
-  const { formId } = router.query
+  const formId = router.query.string as string
 
   const handleSubmit = async (data: { formData: FormData }) => {
     const { formData } = data;

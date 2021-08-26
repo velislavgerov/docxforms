@@ -1,12 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
 
-import { signIn, signOut, useSession } from 'next-auth/client'
+import { signIn, useSession } from 'next-auth/client'
 import Features from '../components/features'
 import Layout from '../components/layout'
 
 export default function Home() {
-  const [session, loading] = useSession()
+  const [session] = useSession()
 
   return (
     <Layout>

@@ -26,7 +26,7 @@ const deleteDocumentForm = (documentTemplateId: string, formId: string) => mutat
   return [...filteredForms]
 })
 
-const submitForm = (formId: string, formData: FormData) => axios({
+const submitForm = (formId: string, formData: FormData | undefined) => axios({
   method: 'POST',
   url: `/api/f/${formId}`,
   responseType: 'blob',

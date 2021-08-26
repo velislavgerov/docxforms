@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Dropdown } from 'react-bootstrap'
 
 export default function Header() {
-  const [session] = useSession()
+  const [session, loading] = useSession()
 
   return (
     <header className="pb-3 py-4 mb-4 border-bottom">
@@ -16,8 +16,8 @@ export default function Header() {
         </Link>
         <div className="d-flex align-items-center justify-content-end">
           <div className="flex-shrink-0">
-            {!session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
-            {session &&
+            {!loading && !session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
+            {!loading && session &&
               <Dropdown>
                 <Dropdown.Toggle id="dropdown-basic" variant="anchor" className="d-flex align-items-center gap-2">
                   <img src={session.user?.image == null ? undefined : session.user?.image} alt="" className="rounded-circle" width="32" height="32" />

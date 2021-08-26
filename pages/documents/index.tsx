@@ -5,10 +5,8 @@ import Link from 'next/link'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-import Header from '../../components/header'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate } from '../../lib/types/api'
-import Footer from '../../components/footer'
 
 export default function Documents() {
   const [session, loading] = useSession()
@@ -56,8 +54,7 @@ export default function Documents() {
 
   // If session exists, display content
   return (
-    <div className="container d-flex flex-column min-vh-100">
-      <Header />
+    <>
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
@@ -123,7 +120,6 @@ export default function Documents() {
             No files uploaded. To get started please select a .docx!
           </div>
         )}
-      <Footer />
-    </div>
+    </>
   )
 }

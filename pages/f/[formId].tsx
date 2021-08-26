@@ -5,8 +5,6 @@ import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'
 
 import prisma from '../../lib/db/prisma'
-import Header from '../../components/header'
-import Footer from '../../components/footer'
 import { submitForm } from '../../lib/hooks/use-document-forms'
 import { downloadFile } from '../../lib/utils/common'
 
@@ -23,7 +21,7 @@ export default function Document({ schema, uiSchema }: DocumentProps) {
   // eslint-disable-next-line no-unused-vars
   const [session, loading] = useSession()
 
-  const formId = router.query.string as string
+  const formId = router.query.formId as string
 
   const handleSubmit = async (data: { formData: FormData }) => {
     const { formData } = data;
@@ -44,15 +42,13 @@ export default function Document({ schema, uiSchema }: DocumentProps) {
   if (typeof window !== 'undefined' && loading) return null
 
   return (
-    <div className="container d-flex flex-column min-vh-100">
-      <Header />
+    <>
       <Form
         schema={schema}
         uiSchema={uiSchema}
         onSubmit={handleSubmit}
       />
-      <Footer />
-    </div>
+    </>
   )
 }
 

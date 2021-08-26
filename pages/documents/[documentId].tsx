@@ -5,12 +5,10 @@ import { useSession } from 'next-auth/client'
 
 import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
-import Header from '../../components/header'
 import useDocumentTemplate from '../../lib/hooks/use-document'
 import { deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import DocumentForms from '../../components/document-forms'
 import DocumentSubmissions from '../../components/document-submissions'
-import Footer from '../../components/footer'
 
 export default function Document() {
   const router = useRouter()
@@ -42,8 +40,7 @@ export default function Document() {
 
   // If session exists, display content
   return (
-    <div className="container d-flex flex-column min-vh-100">
-      <Header />
+    <>
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
@@ -82,8 +79,7 @@ export default function Document() {
         <div className="pt-4">
           <DocumentSubmissions documentTemplateId={documentTemplate.id} />
         </div>
-        <Footer />
       </>}
-    </div>
+    </>
   )
 }

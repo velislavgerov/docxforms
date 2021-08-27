@@ -9,7 +9,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="px-4 py-3 my-3 text-center">
+      <div className="py-3 my-4 text-center">
         <Link href="/">
           <a className="text-dark text-decoration-none">
             <span className="display-5 fw-bold">Welcome to <span className="text-primary">.docx</span>forms!</span>

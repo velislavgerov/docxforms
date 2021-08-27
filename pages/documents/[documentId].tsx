@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useSession } from 'next-auth/client'
 
-import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
 import useDocumentTemplate from '../../lib/hooks/use-document'
 import { deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
@@ -36,7 +35,7 @@ export default function Document() {
   if (typeof window !== 'undefined' && loading) return null
 
   // If no session exists, display access denied message
-  if (!session) { return <Layout><AccessDenied /></Layout> }
+  if (!session) { return <AccessDenied /> }
 
   // If session exists, display content
   return (

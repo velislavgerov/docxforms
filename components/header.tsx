@@ -7,7 +7,7 @@ export default function Header() {
   const [session, loading] = useSession()
 
   return (
-    <header className="pb-3 py-4 mb-4 border-bottom">
+    <header className="pb-3 pt-4 mb-4 border-bottom">
       <div className="d-grid gap-3 align-items-center" style={{ gridTemplateColumns: '1fr 2fr' }}>
         <Link href="/">
           <a className="d-flex align-items-center text-dark text-decoration-none fw-bold">

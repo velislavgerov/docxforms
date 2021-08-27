@@ -3,7 +3,6 @@ import React, { SyntheticEvent } from 'react'
 import { useSession } from 'next-auth/client'
 import Link from 'next/link'
 
-import Layout from '../../components/layout'
 import AccessDenied from '../../components/access-denied'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate } from '../../lib/types/api'

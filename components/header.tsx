@@ -16,7 +16,7 @@ export default function Header() {
         </Link>
         <div className="d-flex align-items-center justify-content-end">
           <div className="flex-shrink-0">
-            {!loading && !session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn()}>Sign in</button>}
+            {!loading && !session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn("auth0")}>Sign in</button>}
             {!loading && session &&
               <Dropdown>
                 <Dropdown.Toggle id="dropdown-basic" variant="anchor" className="d-flex align-items-center gap-2">

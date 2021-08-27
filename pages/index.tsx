@@ -16,7 +16,7 @@ export default function Home() {
           </a>
         </Link>
         <p className="lead">Create web forms to fill documents with variable content, online.</p>
-        {!session && <button type="button" className="btn btn-link" onClick={() => signIn()}>Sign in to get started</button>}
+        {!session && <button type="button" className="btn btn-link" onClick={() => signIn('auth0')}>Sign in to get started</button>}
         {session && <>
           <Link href="/documents" passHref>
             <button type="button" className="btn btn-outline-primary">My Documents</button>

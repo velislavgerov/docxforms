@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/client'
 import { Button } from 'react-bootstrap'
 
-import Layout from './layout'
 import AccessDenied from './access-denied'
 import Confirm, { ConfirmProps } from './confirm'
 import EditForm, { EditFormProps } from './edit-form'
@@ -70,7 +69,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   if (typeof window !== 'undefined' && loading) return null
 
   // If no session exists, display access denied message
-  if (!session) { return <Layout><AccessDenied /></Layout> }
+  if (!session) { return <AccessDenied /> }
 
   if (forms == null || isLoading) {
     return (

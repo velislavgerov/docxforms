@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/client'
 import { Button } from 'react-bootstrap'
 
-import Layout from './layout'
 import AccessDenied from './access-denied'
 import Confirm, { ConfirmProps } from './confirm'
 import { useDocumentSubmissions, deleteDocumentSubmission } from '../lib/hooks/use-document-submissions'
@@ -40,7 +39,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
   if (typeof window !== 'undefined' && loading) return null
 
   // If no session exists, display access denied message
-  if (!session) { return <Layout><AccessDenied /></Layout> }
+  if (!session) { return <AccessDenied /> }
 
   if (submissions == null || isLoading) {
     return (

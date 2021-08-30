@@ -8,10 +8,10 @@ export default function Header() {
 
   return (
     <header className="pb-3 pt-4 mb-4 border-bottom">
-      <div className="d-grid gap-3 align-items-center" style={{ gridTemplateColumns: '1fr 2fr' }}>
+      <div className="container d-grid gap-3 align-items-center" style={{ gridTemplateColumns: '1fr 2fr' }}>
         <Link href="/">
-          <a className="d-flex align-items-center text-dark text-decoration-none fw-bold">
-            <span className="fs-4"><span className="text-primary">.docx</span>forms</span>
+          <a className="d-flex align-items-center text-dark text-decoration-none fw-bold fs-4" translate="no">
+            <span>doc</span><span className="text-primary">x</span><span>forms</span>
           </a>
         </Link>
         <div className="d-flex align-items-center justify-content-end">

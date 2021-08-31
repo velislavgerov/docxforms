@@ -47,12 +47,14 @@ export default async function protectedHandler(
             fileLastModifiedDate: true,
             createdAt: true,
             updatedAt: true,
+            description: true,
           },
         })
         
         const data = documentTemplates.map(dt => ({
           id: dt.id,
           name: dt.fileName,
+          description: dt.description,
           fileUrl: getServerURL(`/api/documents/${dt.id}/file`),
           createdAt: dt.createdAt,
           updatedAt: dt.updatedAt,
@@ -120,6 +122,7 @@ export default async function protectedHandler(
             fileLastModifiedDate: true,
             createdAt: true,
             updatedAt: true,
+            description: true,
           },
         })
 
@@ -136,6 +139,7 @@ export default async function protectedHandler(
         return res.status(200).json({
           id: documentTemplate!.id,
           name: documentTemplate!.fileName,
+          description: documentTemplate!.description,
           fileUrl: getServerURL(`/api/documents/${documentTemplate.id}/file`),
           createdAt: documentTemplate!.createdAt,
           updatedAt: documentTemplate!.updatedAt,

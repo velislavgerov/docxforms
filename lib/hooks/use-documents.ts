@@ -18,7 +18,7 @@ const uploadDocumentTemplate = (params: IDocumentTemplateUploadParams) => mutate
 })
 
 const updateDocumentTemplate = (documentTemplateId: string, params: IDocumentTemplateUpdateParams) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
-  const updatedDocumentTemplate : IDocumentTemplate = await axios.put(`/api/forms/${documentTemplateId}`, params).then((res) => (res.data))
+  const updatedDocumentTemplate : IDocumentTemplate = await axios.put(`/api/documents/${documentTemplateId}`, params).then((res) => (res.data))
   mutate(`/api/documents/${documentTemplateId}`)
 
   const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== updatedDocumentTemplate.id)

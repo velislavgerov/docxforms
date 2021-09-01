@@ -3,6 +3,7 @@
 import React, { useState, SyntheticEvent } from 'react'
 import { useSession } from 'next-auth/client'
 import Link from 'next/link'
+import { Dropdown } from 'react-bootstrap'
 
 import AccessDenied from '../../components/access-denied'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate, updateDocumentTemplate } from '../../lib/hooks/use-documents'
@@ -76,65 +77,60 @@ export default function Documents() {
           <li className="breadcrumb-item active" aria-current="page">Documents</li>
         </ol>
       </nav>
-      <div className="pb-2">
+      <div className="pb-2 gap-2 d-grid d-sm-flex justify-content-between align-items-center">
         <h1 className="display-5">
           Documents
         </h1>
-        <label htmlFor="docxFile" className="form-label">Upload your .docx template to get a web form.</label>
-        <input className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+        <form>
+          <label htmlFor="docxFile" className="btn btn-outline-dark"><i className="bi bi-upload" /> Upload .docx</label>
+          <input hidden className="form-control" type="file" id="docxFile" onChange={handleFileInput} accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+        </form>
       </div>
       {(documentTemplates != null && documentTemplates.length) ?
         (<div className="table-responsive">
-          <table className="table">
+          <table className="table table-hover">
             <thead>
               <tr>
                 <th scope="col">Name</th>
                 <th scope="col">Description</th>
-                <th scope="col">Added at</th>
-                <th scope="col">Last modified at</th>
-                <th scope="col" colSpan={4}>Actions</th>
+                <th scope="col">Last modified</th>
+                <th scope="col">Actions</th>
               </tr>
             </thead>
             <tbody>
               {documentTemplates.map((doc: IDocumentTemplate) => (
-                <tr key={doc.id}>
-                  <td>
-                    <Link href={`/documents/${doc.id}`} passHref>
-                      <button type="button" className="btn btn-anchor"><i className="bi bi-file-earmark-word" /> {doc.name}</button>
-                    </Link>
-                  </td>
-                  <td>{doc.description}</td>
-                  <td>{new Date(doc.createdAt).toLocaleString('en-EU')}</td>
-                  <td>{new Date(doc.updatedAt).toLocaleString('en-EU')}</td>
-                  <td>
-                    <button type="button" className="btn btn-outline-primary w-100"
-                      onClick={() => handleEdit(doc)}
-                    >
-                      <i className="bi bi-pencil-square" /> Edit
-                    </button>
-                  </td>
-                  <td>
-                    <Link
-                      passHref
-                      href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}
-                    >
-                      <a
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        type="button"
-                        className="btn btn-outline-secondary w-100"
-                      >
-                        <i className="bi bi-zoom-in" /> View File
-                      </a>
-                    </Link>
-                  </td>
-                  <td>
-                    <button type="button" className="btn btn-outline-dark w-100" onClick={() => handleDownload(doc)}><i className="bi bi-file-earmark-arrow-down" /> Download File</button>
-                  </td>
-                  <td>
-                    <button type="button" className="btn btn-outline-danger w-100" onClick={() => handleDelete(doc)}><i className="bi bi-trash" /> Delete</button>
-                  </td>
-                </tr>
+                <Link href={`/documents/${doc.id}`} passHref>
+                  <tr key={doc.id} style={{ cursor: 'pointer' }}>
+                    <td><i className="bi bi-file-earmark-word" /> {doc.name}
+                    </td>
+                    <td>{doc.description}</td>
+                    <td>{new Date(doc.updatedAt).toLocaleString('en-EU')}</td>
+                    <td>
+                      <Dropdown onClick={(e: any) => e.preventDefault()}>
+                        <Dropdown.Toggle variant="anchor" className="d-flex align-items-center gap-2">
+                          <i className="bi bi-three-dots-vertical" />
+                        </Dropdown.Toggle>
+
+                        <Dropdown.Menu align="right" popperConfig={{ strategy: "fixed" }}>
+                          <Dropdown.Item onClick={() => handleEdit(doc)}><i className="bi bi-pencil-square" /> Edit</Dropdown.Item>
+                          <Link
+                            passHref
+                            href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}
+                          >
+                            <Dropdown.Item
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <i className="bi bi-zoom-in" /> View
+                            </Dropdown.Item>
+                          </Link>
+                          <Dropdown.Item onClick={() => handleDownload(doc)}><i className="bi bi-file-earmark-arrow-down" /> Download</Dropdown.Item>
+                          <Dropdown.Item onClick={() => handleDelete(doc)}><i className="bi bi-trash" /> Delete</Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
+                  </tr>
+                </Link>
               ))}
             </tbody>
           </table>
@@ -143,7 +139,8 @@ export default function Documents() {
           <div className="alert alert-light" role="alert">
             No files uploaded. To get started please select a .docx!
           </div>
-        )}
+        )
+      }
     </>
   )
 }

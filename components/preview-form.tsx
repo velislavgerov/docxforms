@@ -50,17 +50,16 @@ function PreviewDocumentForm(props: PreviewFormProps) {
           formData={formData}
           onSubmit={handleSubmit}
         >
-          {true}
+          <div className="d-flex gap-2 justify-content-end border-top pt-3 mt-4">
+            <Button variant="secondary" onClick={onCancel}>
+              Close
+            </Button>
+            <Button type="submit" variant="primary">
+              Submit
+            </Button>
+          </div>
         </Form>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onCancel}>
-          Close
-        </Button>
-        <Button variant="primary" onClick={handleSubmit}>
-          Submit
-        </Button>
-      </Modal.Footer>
     </Modal>
   );
 }

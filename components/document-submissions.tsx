@@ -1,38 +1,37 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/client'
-import { Button } from 'react-bootstrap'
 
 import AccessDenied from './access-denied'
-import Confirm, { ConfirmProps } from './confirm'
 import { useDocumentSubmissions, deleteDocumentSubmission } from '../lib/hooks/use-document-submissions'
 import { ISubmission } from '../lib/types/api'
+import useConfirm from '../lib/hooks/use-confirm'
 
 function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: string }) {
   const [session, loading] = useSession()
   const { submissions, isLoading, isError } = useDocumentSubmissions(documentTemplateId, session)
 
-  const [confirm, setConfirm] = useState<null | ConfirmProps>(null);
+  const { confirm, ConfirmComponent } = useConfirm();
 
-  const handleDelete = (submission: ISubmission) => {
-    const deleteBtn = <Button
-      variant="dark"
-      onClick={() =>
-        deleteDocumentSubmission(documentTemplateId, submission.id)
-          .then(() => setConfirm(null))
-      }
-    >
-      Delete
-    </Button>
-
-    setConfirm({
-      show: true,
-      title: 'Confirmation Required',
-      body: 'This action is irreversible. Are you sure you want to delete this submission?',
-      actionBtn: deleteBtn,
-      onCancel: () => setConfirm(null),
+  const handleDelete = async (submission: ISubmission) => {
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const isConfirmed = await confirm({
+      title: "Are you sure?",
+      body: (<p>This action cannot be undone. This will permanently delete the <strong>{submission.id}</strong> submission.</p>),
+      ActionBtn: DeleteBtn,
     })
+    if (isConfirmed) {
+      console.log(`Delete submission ${submission.id}: confirmed`)
+      deleteDocumentSubmission(documentTemplateId, submission.id)
+        .then(() => console.log(`Delete submission ${submission.id}: success`))
+        .catch((err) => {
+          console.log(`Delete submission ${submission.id}: failed`, err)
+          alert(`Delete submission ${submission.id}: failed`)
+        })
+    } else {
+      console.log(`Delete submission ${submission.id}: cancelled`)
+    }
   }
 
   // When rendering client side don't display anything until loading is complete
@@ -69,7 +68,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
 
   return (
     <>
-      {confirm && <Confirm {...confirm} />}
+      {ConfirmComponent}
       <h2>Manage Submissions</h2>
       <p className="lead">This is a lead paragraph with some useful information about submissions.</p>
       <div className="table-responsive">

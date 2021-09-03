@@ -2,20 +2,20 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/client'
-import { Button } from 'react-bootstrap'
 
 import AccessDenied from './access-denied'
-import Confirm, { ConfirmProps } from './confirm'
 import EditForm, { EditFormProps } from './edit-form'
 import PreviewForm, { PreviewFormProps } from './preview-form'
 import { IForm, IFormUpdateParams } from '../lib/types/api'
 import { updateDocumentForm, deleteDocumentForm, createDocumentForm, useDocumentForms } from '../lib/hooks/use-document-forms'
+import useConfirm from '../lib/hooks/use-confirm'
 
 function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   const [session, loading] = useSession()
   const { forms, isLoading, isError } = useDocumentForms(documentTemplateId, session)
 
-  const [confirm, setConfirm] = useState<null | ConfirmProps>(null);
+  const { confirm, ConfirmComponent } = useConfirm();
+
   const [editForm, setEditForm] = useState<null | EditFormProps>(null);
   const [previewForm, setPreviewForm] = useState<null | PreviewFormProps>(null);
 
@@ -39,24 +39,24 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
     })
   }
 
-  const handleDelete = (form: IForm) => {
-    const deleteBtn = <Button
-      variant="dark"
-      onClick={() =>
-        deleteDocumentForm(documentTemplateId, form.id)
-          .then(() => setConfirm(null))
-      }
-    >
-      Delete
-    </Button>
-
-    setConfirm({
-      show: true,
-      title: 'Confirmation Required',
-      body: 'This action is irreversible. Are you sure you want to delete this form and all related submissions?',
-      actionBtn: deleteBtn,
-      onCancel: () => setConfirm(null),
+  const handleDelete = async (form: IForm) => {
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const isConfirmed = await confirm({
+      title: "Are you sure?",
+      body: (<p>This action cannot be undone. This will permanently delete the <strong>{form.schema.title}</strong> form and all corresponding submissions.</p>),
+      ActionBtn: DeleteBtn,
     })
+    if (isConfirmed) {
+      console.log(`Delete form ${form.schema.title}: confirmed`)
+      deleteDocumentForm(documentTemplateId, form.id)
+        .then(() => console.log(`Delete form ${form.schema.title}: success`))
+        .catch((err) => {
+          console.log(`Delete form ${form.schema.title}: failed`, err)
+          alert(`Delete form ${form.schema.title}: failed`)
+        })
+    } else {
+      console.log(`Delete form ${form.schema.title}: cancelled`)
+    }
   }
 
   const handleCreate = () => {
@@ -108,7 +108,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
 
   return (
     <>
-      {confirm && <Confirm {...confirm} />}
+      {ConfirmComponent}
       {editForm && <EditForm {...editForm} />}
       {previewForm && <PreviewForm {...previewForm} />}
       <div className="d-grid gap-2 d-sm-flex justify-content-between">

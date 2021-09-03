@@ -8,6 +8,7 @@ import useDocumentTemplate from '../../lib/hooks/use-document'
 import { deleteDocumentTemplate, downloadDocumentTemplate } from '../../lib/hooks/use-documents'
 import DocumentForms from '../../components/document-forms'
 import DocumentSubmissions from '../../components/document-submissions'
+import useConfirm from '../../lib/hooks/use-confirm'
 
 export default function Document() {
   const router = useRouter()
@@ -17,12 +18,29 @@ export default function Document() {
   const documentId = query.documentId as string
 
   const { documentTemplate } = useDocumentTemplate(documentId, session)
+  const { confirm, ConfirmComponent } = useConfirm()
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (documentTemplate == null) return
 
-    deleteDocumentTemplate(documentTemplate.id)
-      .then(() => router.push('/documents'))
+    const doc = documentTemplate
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const isConfirmed = await confirm({
+      title: "Are you sure?",
+      body: (<p>This action cannot be undone. This will permanently delete the <strong>{doc.name}</strong> document.</p>),
+      ActionBtn: DeleteBtn,
+    })
+    if (isConfirmed) {
+      console.log(`Delete document ${doc.name}: confirmed`)
+      deleteDocumentTemplate(doc.id)
+        .then(() => console.log(`Delete document ${doc.name}: success`))
+        .catch((err) => {
+          console.log(`Delete document ${doc.name}: failed`, err)
+          alert(`Delete document ${doc.name}: failed: failed`)
+        })
+    } else {
+      console.log(`Delete document ${doc.name}: cancelled`)
+    }
   }
 
   const handleDownload = () => {
@@ -40,6 +58,7 @@ export default function Document() {
   // If session exists, display content
   return (
     <>
+      {ConfirmComponent}
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>

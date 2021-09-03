@@ -9,10 +9,12 @@ import AccessDenied from '../../components/access-denied'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate, updateDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate, IDocumentTemplateUpdateParams } from '../../lib/types/api'
 import EditDocument, { EditDocumentProps } from '../../components/edit-document'
+import useConfirm from '../../lib/hooks/use-confirm'
 
 export default function Documents() {
   const [session, loading] = useSession()
   const { documentTemplates } = useDocumentTemplates(session)
+  const { confirm, ConfirmComponent } = useConfirm()
 
   const [editDocument, setEditDocument] = useState<null | EditDocumentProps>(null);
 
@@ -27,12 +29,24 @@ export default function Documents() {
     })
   }
 
-  const handleDelete = (doc: IDocumentTemplate) => {
-    deleteDocumentTemplate(doc.id)
-      .catch((err) => {
-        console.log(err)
-        alert("Failed to delete document")
-      })
+  const handleDelete = async (doc: IDocumentTemplate) => {
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const isConfirmed = await confirm({
+      title: "Are you sure?",
+      body: (<p>This action cannot be undone. This will permanently delete the <strong>{doc.name}</strong> document.</p>),
+      ActionBtn: DeleteBtn,
+    })
+    if (isConfirmed) {
+      console.log(`Delete document ${doc.name}: confirmed`)
+      deleteDocumentTemplate(doc.id)
+        .then(() => console.log(`Delete document ${doc.name}: success`))
+        .catch((err) => {
+          console.log(`Delete document ${doc.name}: failed`, err)
+          alert(`Delete document ${doc.name}: failed: failed`)
+        })
+    } else {
+      console.log(`Delete document ${doc.name}: cancelled`)
+    }
   }
 
   const handleFileInput = (e: SyntheticEvent) => {
@@ -70,6 +84,7 @@ export default function Documents() {
   // If session exists, display content
   return (
     <>
+      {ConfirmComponent}
       {editDocument && <EditDocument {...editDocument} />}
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
@@ -99,8 +114,8 @@ export default function Documents() {
             </thead>
             <tbody>
               {documentTemplates.map((doc: IDocumentTemplate) => (
-                <Link href={`/documents/${doc.id}`} passHref>
-                  <tr key={doc.id} style={{ cursor: 'pointer' }}>
+                <Link key={doc.id} href={`/documents/${doc.id}`} passHref>
+                  <tr style={{ cursor: 'pointer' }}>
                     <td><i className="bi bi-file-earmark-word" /> {doc.name}
                     </td>
                     <td>{doc.description}</td>

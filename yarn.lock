@@ -1836,6 +1836,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"clsx@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "clsx@npm:1.1.1"
+  checksum: ff052650329773b9b245177305fc4c4dc3129f7b2be84af4f58dc5defa99538c61d4207be7419405a5f8f3d92007c954f4daba5a7b74e563d5de71c28c830063
+  languageName: node
+  linkType: hard
+
 "code-point-at@npm:^1.0.0":
   version: 1.1.0
   resolution: "code-point-at@npm:1.1.0"
@@ -2394,6 +2401,7 @@ __metadata:
     react: ^17.0.2
     react-bootstrap: ^1.6.1
     react-dom: ^17.0.2
+    react-toastify: ^8.0.2
     swr: ^0.5.6
     ts-node: ^10.2.0
     typescript: ^4.3.5
@@ -6258,6 +6266,18 @@ __metadata:
     react: ^16.8.0 || ^17.0.0
     react-dom: ^16.8.0 || ^17.0.0
   checksum: e87e0b42a662ddce7957a69a3029ea769b22264c197cbd1d8bde1ce631e49c5c5f42414773364674a7a6a8431340e1ede49220583bf1dcd966b63e9bd25cfc12
+  languageName: node
+  linkType: hard
+
+"react-toastify@npm:^8.0.2":
+  version: 8.0.2
+  resolution: "react-toastify@npm:8.0.2"
+  dependencies:
+    clsx: ^1.1.1
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
+  checksum: 81118f2df255bda07eece5dc32489270873bf909df54134af406a7c9dc3a35f687916f41d765cea649487003020ef25d1e3023c7acf0c459e768f392c78a8af9
   languageName: node
   linkType: hard
 

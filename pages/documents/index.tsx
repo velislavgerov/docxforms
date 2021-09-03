@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/client'
 import Link from 'next/link'
 import { Dropdown } from 'react-bootstrap'
 
+import { toast } from 'react-toastify'
+
 import AccessDenied from '../../components/access-denied'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate, updateDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate, IDocumentTemplateUpdateParams } from '../../lib/types/api'
@@ -22,9 +24,33 @@ export default function Documents() {
     setEditDocument({
       show: true,
       onCancel: () => setEditDocument(null),
-      onSave: (params: IDocumentTemplateUpdateParams) =>
-        updateDocumentTemplate(doc.id, params)
-          .then(() => setEditDocument(null)),
+      onSave: (params: IDocumentTemplateUpdateParams) => {
+        const updatePromise = updateDocumentTemplate(doc.id, params)
+
+        updatePromise
+          .then(() => {
+            console.log(`Saving document ${doc.name}: success`)
+            setEditDocument(null)
+          })
+          .catch((err) => {
+            console.log(`Saving document ${doc.name}: failed`, err)
+          })
+
+        toast.promise(
+          updatePromise,
+          {
+            pending: {
+              render: <span>Saving <strong>{doc.name}</strong>...</span>,
+            },
+            success: {
+              render: <span>Saved <strong>{doc.name}</strong></span>,
+            },
+            error: {
+              render: <span>Failed to save <strong>{doc.name}</strong></span>,
+            },
+          }
+        )
+      },
       documentTemplate: doc,
     })
   }
@@ -38,41 +64,89 @@ export default function Documents() {
     })
     if (isConfirmed) {
       console.log(`Delete document ${doc.name}: confirmed`)
-      deleteDocumentTemplate(doc.id)
-        .then(() => console.log(`Delete document ${doc.name}: success`))
+
+      const deletePromise = deleteDocumentTemplate(doc.id)
+
+      deletePromise
+        .then(() => {
+          console.log(`Delete document ${doc.name}: success`)
+        })
         .catch((err) => {
           console.log(`Delete document ${doc.name}: failed`, err)
-          alert(`Delete document ${doc.name}: failed: failed`)
         })
+
+      toast.promise(
+        deletePromise,
+        {
+          pending: {
+            render: <span>Deleting <strong>{doc.name}</strong>...</span>,
+          },
+          success: {
+            render: <span>Deleted <strong>{doc.name}</strong></span>,
+          },
+          error: {
+            render: <span>Failed to delete <strong>{doc.name}</strong></span>,
+          },
+        }
+      )
     } else {
       console.log(`Delete document ${doc.name}: cancelled`)
     }
   }
 
-  const handleFileInput = (e: SyntheticEvent) => {
+  const handleFileInput = async (e: SyntheticEvent) => {
     e.preventDefault()
     const target = e.target as HTMLInputElement
     const selectedFile = target.files![0]
 
-    uploadDocumentTemplate({
+    const uploadPromise = uploadDocumentTemplate({
       name: selectedFile.name,
       file: selectedFile,
     })
-      .then(() => {
-        target.value = ''
-      })
+
+    uploadPromise
       .catch((err) => {
         console.log(err)
-        alert("Failed to upload document")
       })
+
+    toast.promise(
+      uploadPromise,
+      {
+        pending: {
+          render: <span>Uploading <strong>{selectedFile.name}</strong>...</span>,
+        },
+        success: {
+          render: <span>Uploaded <strong>{selectedFile.name}</strong></span>,
+        },
+        error: {
+          render: <span>Failed to upload <strong>{selectedFile.name}</strong></span>,
+        },
+      }
+    )
   }
 
   const handleDownload = (doc: IDocumentTemplate) => {
-    downloadDocumentTemplate(doc.id)
+    const downloadPromise = downloadDocumentTemplate(doc.id)
+
+    downloadPromise
       .catch((err) => {
         console.log(err)
-        alert("Failed to download document")
       })
+
+    toast.promise(
+      downloadPromise,
+      {
+        pending: {
+          render: <span>Starting download for <strong>{doc.name}</strong>...</span>,
+        },
+        success: {
+          render: <span>Download started for <strong>{doc.name}</strong></span>,
+        },
+        error: {
+          render: <span>Failed to start download for <strong>{doc.name}</strong></span>,
+        },
+      }
+    )
   }
 
   // When rendering client side don't display anything until loading is complete

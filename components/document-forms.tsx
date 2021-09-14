@@ -40,7 +40,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   }
 
   const handleDelete = async (form: IForm) => {
-    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}><i className="bi bi-trash" /> Delete</button>
     const isConfirmed = await confirm({
       title: "Are you sure?",
       body: (<p>This action cannot be undone. This will permanently delete the <strong>{form.schema.title}</strong> form and all corresponding submissions.</p>),
@@ -89,20 +89,14 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
 
   if (forms != null && !forms.length) {
     return (<>
-      <div className="d-grid gap-2 d-sm-flex justify-content-between">
-        <h2>
-          Manage Forms
-        </h2>
-        <button className="btn btn-outline-dark" type="button"
-          onClick={handleCreate}
-        >
-          + Add Form
-        </button>
-      </div>
-      <p className="lead">This is a lead paragraph with some useful information about forms.</p>
       <div className="alert alert-light" role="alert">
         No forms created for this document template.
       </div>
+      <button className="btn btn-outline-dark" type="button"
+        onClick={handleCreate}
+      >
+        + Add Form
+      </button>
     </>)
   }
 
@@ -111,27 +105,13 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
       {ConfirmComponent}
       {editForm && <EditForm {...editForm} />}
       {previewForm && <PreviewForm {...previewForm} />}
-      <div className="d-grid gap-2 d-sm-flex justify-content-between">
-        <h2>
-          Manage Forms
-        </h2>
-        <button className="btn btn-outline-dark" type="button"
-          onClick={handleCreate}
-        >
-          + Add Form
-        </button>
-      </div>
-      <p className="lead">This is a lead paragraph with some useful information about forms.</p>
       <div className="table-responsive">
         <table className="table">
-          <thead>
-            <tr>
+          <thead className="thead-dark">
+            <tr >
               <th scope="col">Name</th>
               <th scope="col">Description</th>
-              <th scope="col">Dedicated URL</th>
-              <th scope="col">Visibility</th>
-              <th scope="col">Created at</th>
-              <th scope="col">Updated at</th>
+              <th scope="col">Last modified</th>
               <th scope="col">Actions</th>
             </tr>
           </thead>
@@ -140,14 +120,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
               <tr key={form.id}>
                 <td>{form.schema.title}</td>
                 <td>{form.schema.description}</td>
-                <td>
-                  <Link href={`/f/${form.id}`}>
-                    <a target="_blank" rel="noopener noreferrer">/f/{form.id}</a>
-                  </Link>
-                </td>
-                <td>Public</td>
-                <td>{form.createdAt}</td>
-                <td>{form.updatedAt}</td>
+                <td>{new Date(form.updatedAt).toLocaleString('en-EU')}</td>
                 <td>
                   <div className="d-grid gap-2 d-sm-flex">
                     <button
@@ -155,21 +128,26 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
                       className="btn btn-light flex-grow-1"
                       onClick={() => handlePreview(form)}
                     >
-                      Open
+                      <i className="bi bi-pencil-square" /> Fill
                     </button>
+                    <Link href={`/f/${form.id}`}>
+                      <a className="btn btn-dark flex-grow-1" target="_blank" rel="noopener noreferrer">
+                        <i className="bi bi-share" /> Share
+                      </a>
+                    </Link>
                     <button
                       type="button"
                       className="btn btn-primary flex-grow-1"
                       onClick={() => handleEdit(form)}
                     >
-                      Edit
+                      <i className="bi bi-pen" /> Edit
                     </button>
                     <button
                       type="button"
-                      className="btn btn-dark flex-grow-1"
+                      className="btn btn-danger flex-grow-1"
                       onClick={() => handleDelete(form)}
                     >
-                      Delete
+                      <i className="bi bi-trash" /> Delete
                     </button>
                   </div>
                 </td>
@@ -178,6 +156,11 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
           </tbody>
         </table>
       </div>
+      <button className="btn btn-outline-dark" type="button"
+        onClick={handleCreate}
+      >
+        <i className="bi bi-plus" /> Add Form
+      </button>
     </>
   )
 }

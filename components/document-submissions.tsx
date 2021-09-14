@@ -15,7 +15,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
   const { confirm, ConfirmComponent } = useConfirm();
 
   const handleDelete = async (submission: ISubmission) => {
-    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}><i className="bi bi-trash" /> Delete</button>
     const isConfirmed = await confirm({
       title: "Are you sure?",
       body: (<p>This action cannot be undone. This will permanently delete the <strong>{submission.id}</strong> submission.</p>),
@@ -58,8 +58,6 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
 
   if (submissions != null && !submissions.length) {
     return (<>
-      <h2>Manage Submissions</h2>
-      <p className="lead">This is a lead paragraph with some useful information about submissions.</p>
       <div className="alert alert-light" role="alert">
         No submissions have been made for this document.
       </div>
@@ -69,15 +67,12 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
   return (
     <>
       {ConfirmComponent}
-      <h2>Manage Submissions</h2>
-      <p className="lead">This is a lead paragraph with some useful information about submissions.</p>
       <div className="table-responsive">
         <table className="table">
           <thead>
             <tr>
-              <th scope="col">Submitted at</th>
-              <th scope="col">Submitted by, Name</th>
-              <th scope="col">Submitted by, Email</th>
+              <th scope="col">Submitted</th>
+              <th scope="col">Submitter</th>
               <th scope="col">Form Data, JSON</th>
               <th scope="col">Actions</th>
             </tr>
@@ -85,9 +80,8 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
           <tbody>
             {submissions.map((submission: any) => (
               <tr key={submission.id}>
-                <td>{submission.createdAt}</td>
-                <td>{submission.user != null ? submission.user.name : 'N/A'}</td>
-                <td>{submission.user != null ? <a href={`mailto:${submission.user.email}`}>{submission.user.email}</a> : 'N/A'}</td>
+                <td>{new Date(submission.createdAt).toLocaleString('en-EU')}</td>
+                <td>{submission.user != null ? <a href={`mailto:${submission.user.email}`}>{submission.user.name}</a> : 'N/A'}</td>
                 <td>
                   <pre>
                     <code>{JSON.stringify(submission.formData, null, 2)}</code>
@@ -105,7 +99,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
                         type="button"
                         className="btn btn-light flex-grow-1"
                       >
-                        Open
+                        <i className="bi bi-eye" /> Preview
                       </a>
                     </Link>
                     <Link href={`${submission.fileUrl}`}>
@@ -115,15 +109,15 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
                         type="button"
                         className="btn btn-warning flex-grow-1"
                       >
-                        Download
+                        <i className="bi bi-download" /> Download
                       </a>
                     </Link>
                     <button
                       type="button"
-                      className="btn btn-dark flex-grow-1"
+                      className="btn btn-danger flex-grow-1"
                       onClick={() => handleDelete(submission)}
                     >
-                      Delete
+                      <i className="bi bi-trash" /> Delete
                     </button>
                   </div>
                 </td>

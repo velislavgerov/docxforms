@@ -26,10 +26,10 @@ function ConfirmModal({
       <Modal.Body>{body}</Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={onCancel}>
-          Cancel
+          <i className="bi bi-x-lg" /> Cancel
         </Button>
         {ActionBtn != null && <ActionBtn onClick={onConfirm} />}
-        {ActionBtn == null && <Button variant="primary" onClick={onConfirm}>Confirm</Button>}
+        {ActionBtn == null && <Button variant="primary" onClick={onConfirm}><i className="bi bi-check-lg" /> Confirm</Button>}
       </Modal.Footer>
     </Modal>
   );

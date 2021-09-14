@@ -19,7 +19,10 @@ export default function Home() {
         {!session && <div className="gap-2 d-flex justify-content-center">
           <button type="button" className="btn btn-primary" onClick={() => signIn('auth0')}>Get Started</button>
           <Link href="/f/example" passHref>
-            <button type="button" className="btn btn-outline-secondary">See Example</button>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              type="button" className="btn btn-outline-secondary">See Example <i className="bi bi-box-arrow-up-right" /></a>
           </Link>
         </div>}
         {session && <div className="gap-2 d-flex justify-content-center">
@@ -31,6 +34,11 @@ export default function Home() {
           </Link>
         </div>}
       </div >
+
+      <div className="container px-4 py-5" id="icon-grid">
+        <h2 className="pb-2 border-bottom text-center">The Process</h2>
+        <h2 className="pb-2 border-bottom text-center">Why</h2>
+      </div>
       <Features />
     </>
   )

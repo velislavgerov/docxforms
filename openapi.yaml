@@ -6,16 +6,15 @@ info:
     
     **TODO**
      - PATCH /document/{documentId}
-     - GET /document/{documentId}/download (downloadUrl)
+     - GET /document/{documentId}/file (fileUrl)
      - PUT /document/{documentId}/forms/{formId}
      - PATCH /forms/{formId}
-     - POST /forms/{formId}/changeVisibility
      - GET /forms/{formId}/schema (schemaUrl)
      - GET /forms/{formId}/uiSchema (uiSchemaUrl)
      - GET /submissions/{submissionId}/formData (formDataUrl)
-     - GET /submissions/{submissionId}/download (downloadUrl)
+     - GET /submissions/{submissionId}/file (fileUrl)
      - PATCH /submissions/{submissionId}
-     - POST /submissions/{submissionId}/changeStatus
+     - POST /submissions/{submissionId}/status
       
     **Work in progress...**
   termsOfService: 'https://docxforms.com/terms/'
@@ -35,10 +34,18 @@ paths:
       operationId: uploadDocument
       requestBody:
         content:
-          'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              type: object
+              properties:
+                name:
+                  type: string
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: application/vnd.openxmlformats-officedocument.wordprocessingml.document
       responses:
         '200':
           description: successful operation
@@ -124,6 +131,38 @@ paths:
       responses:
         '400':
           description: Invalid document value
+      security:
+        - docxforms_auth:
+            - 'write:documents'
+            - 'read:documents'
+  '/documents/{documentId}/file':
+    get:
+      tags:
+        - document
+      summary: Download the file for the corresponding document id
+      description: Returns a .docx file
+      operationId: getFileByDocumentId
+      parameters:
+        - name: documentId
+          in: path
+          description: Id of document to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+             'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid id supplied
+        '401':
+          description: Not authenticated
+        '404':
+          description: Document not found
       security:
         - docxforms_auth:
             - 'write:documents'

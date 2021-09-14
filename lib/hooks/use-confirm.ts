@@ -11,17 +11,21 @@ export default function useConfirm() {
   const [confirmModalProps, setConfirmModalProps] = useState<null | ConfirmModalProps>(null)
 
   const confirm = ({ title, body, ActionBtn } : ConfirmParams) => new Promise((resolve) => {
-    setConfirmModalProps({
+    const props = {
       body,
       ActionBtn,
-      show: true,
       title: title !== null ? title : "Are you absolutely sure?",
+    }
+
+    setConfirmModalProps({
+      ...props,
+      show: true,
       onConfirm: () => {
-        setConfirmModalProps({ ...confirmModalProps, show: false })
+        setConfirmModalProps({ ...props, show: false })
         return resolve(true)
       },
       onCancel: () => {
-        setConfirmModalProps({ ...confirmModalProps, show: false })
+        setConfirmModalProps({ ...props, show: false })
         return resolve(false)
       }
     })

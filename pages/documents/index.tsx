@@ -10,7 +10,7 @@ import { toast } from 'react-toastify'
 import AccessDenied from '../../components/access-denied'
 import { useDocumentTemplates, uploadDocumentTemplate, deleteDocumentTemplate, downloadDocumentTemplate, updateDocumentTemplate } from '../../lib/hooks/use-documents'
 import { IDocumentTemplate, IDocumentTemplateUpdateParams } from '../../lib/types/api'
-import EditDocument, { EditDocumentProps } from '../../components/edit-document'
+import EditDocument, { EditDocumentProps } from '../../components/edit-document-modal'
 import useConfirm from '../../lib/hooks/use-confirm'
 
 export default function Documents() {
@@ -105,6 +105,9 @@ export default function Documents() {
     })
 
     uploadPromise
+      .then((res) => {
+        console.log('todo: open edit page', res)
+      })
       .catch((err) => {
         console.log(err)
       })
@@ -201,7 +204,7 @@ export default function Documents() {
                         </Dropdown.Toggle>
 
                         <Dropdown.Menu align="right" popperConfig={{ strategy: "fixed" }}>
-                          <Dropdown.Item onClick={() => handleEdit(doc)}><i className="bi bi-pencil-square" /> Edit</Dropdown.Item>
+                          <Dropdown.Item onClick={() => handleEdit(doc)}><i className="bi bi-pencil" /> Edit Details</Dropdown.Item>
                           <Link
                             passHref
                             href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}
@@ -210,7 +213,7 @@ export default function Documents() {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              <i className="bi bi-zoom-in" /> View
+                              <i className="bi bi-eye" /> Preview
                             </Dropdown.Item>
                           </Link>
                           <Dropdown.Item onClick={() => handleDownload(doc)}><i className="bi bi-file-earmark-arrow-down" /> Download</Dropdown.Item>

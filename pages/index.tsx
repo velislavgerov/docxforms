@@ -2,7 +2,6 @@ import React from 'react'
 import Link from 'next/link'
 
 import { signIn, useSession } from 'next-auth/client'
-import Features from '../components/features'
 
 export default function Home() {
   const [session] = useSession()
@@ -34,12 +33,6 @@ export default function Home() {
           </Link>
         </div>}
       </div >
-
-      <div className="container px-4 py-5" id="icon-grid">
-        <h2 className="pb-2 border-bottom text-center">The Process</h2>
-        <h2 className="pb-2 border-bottom text-center">Why</h2>
-      </div>
-      <Features />
     </>
   )
 }

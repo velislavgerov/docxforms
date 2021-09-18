@@ -15,6 +15,12 @@ export default NextAuth({
       clientSecret: process.env.AUTH0_CLIENT_SECRET,
       domain: process.env.AUTH0_DOMAIN,
       authorizationUrl: `https://${process.env.AUTH0_DOMAIN}/authorize?response_type=code&prompt=login`,
+      profile: (profile: any) => ({
+          id: profile.sub,
+          name: profile.name,
+          email: profile.email,
+          image: profile.picture,
+      }),
     }),
   ],
   adapter: PrismaAdapter(prisma),

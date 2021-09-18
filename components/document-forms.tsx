@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/client'
+import { toast } from 'react-toastify'
 
 import AccessDenied from './access-denied'
 import EditForm, { EditFormProps } from './edit-form'
@@ -9,6 +10,33 @@ import PreviewForm, { PreviewFormProps } from './preview-form'
 import { IForm, IFormUpdateParams } from '../lib/types/api'
 import { updateDocumentForm, deleteDocumentForm, createDocumentForm, useDocumentForms } from '../lib/hooks/use-document-forms'
 import useConfirm from '../lib/hooks/use-confirm'
+import getServerURL from '../lib/utils/server'
+
+// return a promise
+function copyToClipboard(textToCopy: string) {
+  // navigator clipboard api needs a secure context (https)
+  if (navigator.clipboard && window.isSecureContext) {
+    // navigator clipboard api method'
+    return navigator.clipboard.writeText(textToCopy);
+  }
+
+  // text area method
+  const textArea: HTMLTextAreaElement = document.createElement("textarea");
+  textArea.value = textToCopy;
+  // make the textarea out of viewport
+  textArea.style.position = "fixed";
+  textArea.style.left = "-999999px";
+  textArea.style.top = "-999999px";
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select();
+  return new Promise<void>((res, rej) => {
+    // here the magic happens
+    // eslint-disable-next-line no-unused-expressions
+    document.execCommand('copy') ? res() : rej();
+    textArea.remove();
+  });
+}
 
 function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   const [session, loading] = useSession()
@@ -65,6 +93,29 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
     createDocumentForm(documentTemplateId)
   }
 
+  const handleShare = (form: IForm) => {
+    const url = getServerURL(`/f/${form.id}`)
+
+    console.log(url)
+    const sharePromise = copyToClipboard(url)
+
+    toast.promise(
+      sharePromise,
+      {
+        pending: {
+          render: <span>Copying <Link href={`/f/${form.id}`}><a target="_blank" rel="noopener noreferrer">link</a></Link> to clipboard...</span>,
+        },
+        success: {
+          render: <span>Copied <Link href={`/f/${form.id}`}><a target="_blank" rel="noopener noreferrer">link</a></Link> to clipboard</span>,
+        },
+        error: {
+          render: <span>Cloud not copy url to clipboard, please use this <Link href={`/f/${form.id}`}><a target="_blank" rel="noopener noreferrer">link</a></Link></span>,
+        },
+      }
+    )
+
+  }
+
   // When rendering client side don't display anything until loading is complete
   if (typeof window !== 'undefined' && loading) return null
 
@@ -73,7 +124,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
 
   if (forms == null || isLoading) {
     return (
-      <p className="lead mb-4">
+      <p className="alert alert-light lead" role="alert">
         Loading document forms...
       </p>
     )
@@ -81,7 +132,7 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
 
   if (forms == null || isError) {
     return (
-      <p className="lead mb-4">
+      <p className="alert alert-danger lead" role="alert">
         Unexpected error occured
       </p>
     )
@@ -89,8 +140,8 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
 
   if (forms != null && !forms.length) {
     return (<>
-      <div className="alert alert-light" role="alert">
-        No forms created for this document template.
+      <div className="alert alert-warning lead" role="alert">
+        No forms have been created for this document.
       </div>
       <button className="btn btn-outline-dark" type="button"
         onClick={handleCreate}
@@ -130,11 +181,13 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
                     >
                       <i className="bi bi-pencil-square" /> Fill
                     </button>
-                    <Link href={`/f/${form.id}`}>
-                      <a className="btn btn-dark flex-grow-1" target="_blank" rel="noopener noreferrer">
-                        <i className="bi bi-share" /> Share
-                      </a>
-                    </Link>
+                    <button
+                      type="button"
+                      className="btn btn-dark flex-grow-1"
+                      onClick={() => handleShare(form)}
+                    >
+                      <i className="bi bi-share" /> Share
+                    </button>
                     <button
                       type="button"
                       className="btn btn-primary flex-grow-1"

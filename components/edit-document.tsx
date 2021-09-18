@@ -10,10 +10,7 @@ import { updateDocumentTemplate } from '../lib/hooks/use-documents'
 const Form = withTheme(Bootstrap4Theme)
 
 export interface EditDocumentProps {
-  show: boolean
   documentTemplate: IDocumentTemplate
-  onCancel: MouseEventHandler
-  onSave: any
 }
 
 function EditDocument({ documentTemplate }: EditDocumentProps) {

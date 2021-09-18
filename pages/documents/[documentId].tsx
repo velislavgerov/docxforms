@@ -92,6 +92,15 @@ export default function Document() {
     downloadDocumentTemplate(documentTemplate.id)
   }
 
+  const handlePreview = () => {
+    if (documentTemplate == null) return
+
+    const w = window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`, '_blank');
+    if (!w) {
+      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}>clicking</a> here</span>)
+    }
+  }
+
   // When rendering client side don't display anything until loading is complete
   if (typeof window !== 'undefined' && loading) return null
 
@@ -118,58 +127,39 @@ export default function Document() {
           </li>
         </ol>
       </nav>
-      {documentTemplate != null && <>
-        <Dropdown>
-          <Dropdown.Toggle variant="anchor" className="d-flex align-items-center gap-2 display-5 ">
-            <span className="display-5">
-              <i className="bi bi-file-earmark-word display-5" /> {documentTemplate.name}
-            </span>
-          </Dropdown.Toggle>
+      {documentTemplate != null &&
+        <Tabs fill defaultActiveKey="forms" variant="pills" className="gap-2 mt-4 h5 align-items-center">
+          <Tab
+            tabClassName="d-flex justify-content-start text-black p-0"
+            title={
+              <Dropdown>
+                <Dropdown.Toggle variant="btn-anchor" className="d-flex align-items-center gap-2 display-5 ">
+                  <span className="display-5">
+                    <i className="bi bi-file-earmark-word" /> {documentTemplate.name}
+                  </span>
+                </Dropdown.Toggle>
 
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={handleEdit}><i className="bi bi-pen" /> Edit Details</Dropdown.Item>
-            <Link
-              href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}
-              passHref
-            >
-              <Dropdown.Item
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <i className="bi bi-eye" /> Preview
-              </Dropdown.Item>
-            </Link>
-            <Dropdown.Item onClick={handleDownload}><i className="bi bi-file-earmark-arrow-down" /> Download</Dropdown.Item>
-            <Dropdown.Item onClick={handleDelete}><i className="bi bi-trash" /> Delete</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-        <p className="lead">{documentTemplate.description}</p>
-      </>
-      }
-      <Tabs fill defaultActiveKey="forms" className="mt-4 h5">
-        <Tab eventKey="forms" title="Forms" style={{
-          borderBottom: '1px solid #dee2e6',
-          borderLeft: '1px solid #dee2e6',
-          borderRight: '1px solid #dee2e6'
-        }}>
-          {documentTemplate != null &&
+                <Dropdown.Menu align="right">
+                  <Dropdown.Item className="h5" onClick={handleEdit}><i className="bi bi-pen" /> Edit Details</Dropdown.Item>
+                  <Dropdown.Item className="h5" onClick={handlePreview}><i className="bi bi-eye" /> Preview</Dropdown.Item>
+                  <Dropdown.Item className="h5" onClick={handleDownload}><i className="bi bi-file-earmark-arrow-down" /> Download</Dropdown.Item>
+                  <Dropdown.Item className="h5" onClick={handleDelete}><i className="bi bi-trash" /> Delete</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            }
+          />
+          <Tab eventKey="forms" title="Forms">
             <div className="pt-4 d-flex flex-column mb-4 container">
               <DocumentForms documentTemplateId={documentTemplate.id} />
             </div>
-          }
-        </Tab>
-        <Tab eventKey="submissions" title="Submissions" style={{
-          borderBottom: '1px solid #dee2e6',
-          borderLeft: '1px solid #dee2e6',
-          borderRight: '1px solid #dee2e6'
-        }}>
-          {documentTemplate != null &&
+          </Tab>
+          <Tab eventKey="submissions" title="Submissions">
             <div className="pt-4 d-flex flex-column container">
               <DocumentSubmissions documentTemplateId={documentTemplate.id} />
             </div>
-          }
-        </Tab>
-      </Tabs>
+          </Tab>
+        </Tabs>
+      }
     </>
   )
 }

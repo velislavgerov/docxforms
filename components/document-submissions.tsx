@@ -8,10 +8,10 @@ import { useDocumentSubmissions, deleteDocumentSubmission } from '../lib/hooks/u
 import { ISubmission } from '../lib/types/api'
 import useConfirm from '../lib/hooks/use-confirm'
 
+
 function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: string }) {
   const [session, loading] = useSession()
   const { submissions, isLoading, isError } = useDocumentSubmissions(documentTemplateId, session)
-
   const { confirm, ConfirmComponent } = useConfirm();
 
   const handleDelete = async (submission: ISubmission) => {
@@ -42,7 +42,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
 
   if (submissions == null || isLoading) {
     return (
-      <p className="lead mb-4">
+      <p className="alert alert-light lead">
         Loading document submissions...
       </p>
     )
@@ -50,7 +50,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
 
   if (submissions == null || isError) {
     return (
-      <p className="lead mb-4">
+      <p className="alert alert-danger lead" role="alert">
         Unexpected error occured
       </p>
     )
@@ -58,7 +58,7 @@ function DocumentSubmissions({ documentTemplateId }: { documentTemplateId: strin
 
   if (submissions != null && !submissions.length) {
     return (<>
-      <div className="alert alert-light" role="alert">
+      <div className="alert alert-warning lead" role="alert">
         No submissions have been made for this document.
       </div>
     </>)

@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 
 import { signIn, useSession } from 'next-auth/client'
+import Features from '../components/features'
 
 export default function Home() {
   const [session] = useSession()
@@ -33,6 +34,7 @@ export default function Home() {
           </Link>
         </div>}
       </div >
+      <Features />
     </>
   )
 }

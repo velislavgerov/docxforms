@@ -9,7 +9,7 @@ export default async function protectedHandler(
   res: NextApiResponse
 ) {
   const session = await getSession({ req })
-  const { method, query } = req;
+  const { method, query, body } = req;
   const documentId = query.documentId as string;
   
   if (!session) {
@@ -20,6 +20,43 @@ export default async function protectedHandler(
   }
 
   switch(method) {
+    case 'PUT':
+      try {
+        const documentTemplate = await prisma.documentTemplate.update({
+          where: {
+            id: documentId,
+          },
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            fileSize: true,
+            fileLastModifiedDate: true,
+            createdAt: true,
+            updatedAt: true,
+            forms: true,
+            description: true,
+          },
+          data: {
+            fileName: body.name as string,
+            description: body.description as string,
+          }
+        })
+
+        return res.status(200).json({
+          id: documentTemplate!.id,
+          name: documentTemplate!.fileName,
+          description: documentTemplate!.description,
+          fileUrl: getServerURL(`/api/documents/${documentId}/file`),
+          createdAt: documentTemplate!.createdAt,
+          updatedAt: documentTemplate!.updatedAt,
+        })
+      } catch (error) {
+        console.error(error)
+        return res.status(400).json({
+          success: false,
+        })
+      }
     case 'GET':
       try {
         const documentTemplate = await prisma.documentTemplate.findUnique({
@@ -35,12 +72,21 @@ export default async function protectedHandler(
             createdAt: true,
             updatedAt: true,
             forms: true,
+            description: true,
           },
         })
+
+        if (documentTemplate == null) {
+          return res.status(404).json({
+            success: false,
+            message: "Document does not exist"
+          })
+        }
 
         return res.status(200).json({
           id: documentTemplate!.id,
           name: documentTemplate!.fileName,
+          description: documentTemplate!.description,
           fileUrl: getServerURL(`/api/documents/${documentId}/file`),
           createdAt: documentTemplate!.createdAt,
           updatedAt: documentTemplate!.updatedAt,

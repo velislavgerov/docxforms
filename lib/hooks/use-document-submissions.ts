@@ -10,6 +10,32 @@ const deleteDocumentSubmission = (documentTemplateId: string, submissionId: stri
   return [...filteredSubmissions]
 })
 
+const downloadDocumentSubmission = (submission: ISubmission) => axios({
+    method: 'GET',
+    url: submission.fileUrl,
+    responseType: 'blob',
+  })
+  .then((res) => {
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement('a');
+
+    let filename = ''
+    const disposition = res.headers['content-disposition'];
+    // source: https://stackoverflow.com/a/40940790
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+      const matches = filenameRegex.exec(disposition)
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, '')
+      }
+    }
+
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+  })
+
 function useDocumentSubmissions (documentTemplateId: null | string, session: null | Session ) {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/submissions` : null)
 
@@ -20,4 +46,4 @@ function useDocumentSubmissions (documentTemplateId: null | string, session: nul
   }
 }
 
-export { useDocumentSubmissions, deleteDocumentSubmission }
+export { useDocumentSubmissions, deleteDocumentSubmission, downloadDocumentSubmission }

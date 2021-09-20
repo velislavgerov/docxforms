@@ -12,17 +12,21 @@ const uploadDocumentTemplate = (params: IDocumentTemplateUploadParams) => mutate
   const createdDocumentTemplate : IDocumentTemplate = await axios
     .post('/api/documents', formData)
     .then((res) => res.data)
-
-  const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== createdDocumentTemplate.id)
-  return [...filteredDocumentTemplates, createdDocumentTemplate]
+  
+  if (documentTemplates != null) {
+    const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== createdDocumentTemplate.id)
+    return [...filteredDocumentTemplates, createdDocumentTemplate]
+  }
 })
 
 const updateDocumentTemplate = (documentTemplateId: string, params: IDocumentTemplateUpdateParams) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
-  const updatedDocumentTemplate : IDocumentTemplate = await axios.put(`/api/forms/${documentTemplateId}`, params).then((res) => (res.data))
+  const updatedDocumentTemplate : IDocumentTemplate = await axios.put(`/api/documents/${documentTemplateId}`, params).then((res) => (res.data))
   mutate(`/api/documents/${documentTemplateId}`)
 
-  const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== updatedDocumentTemplate.id)
-  return [...filteredDocumentTemplates, updatedDocumentTemplate]
+  if (documentTemplates != null) {
+    const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== updatedDocumentTemplate.id)
+    return [...filteredDocumentTemplates, updatedDocumentTemplate]
+  }
 })
 
 const deleteDocumentTemplate = (documentTemplateId: string) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
@@ -31,8 +35,10 @@ const deleteDocumentTemplate = (documentTemplateId: string) => mutate(`/api/docu
   mutate(`/api/documents/${documentTemplateId}/forms`)
   mutate(`/api/documents/${documentTemplateId}/submissions`)
 
-  const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== documentTemplateId)
-  return [...filteredDocumentTemplates]
+  if (documentTemplates != null) {
+    const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== documentTemplateId)
+    return [...filteredDocumentTemplates]
+  }
 })
 
 const downloadDocumentTemplate = (documentTemplateId: string) => axios({

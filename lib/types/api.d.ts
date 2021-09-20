@@ -1,6 +1,7 @@
 export interface IDocumentTemplate {
   id: string,
   name: string,
+  description: string,
   fileUrl: string, 
   createdAt: string,
   updatedAt: string,
@@ -20,6 +21,7 @@ export interface IDocumentTemplateUploadParams {
 
 export interface IDocumentTemplateUpdateParams {
   name: string,
+  description: string,
 }
 
 export interface IForm {

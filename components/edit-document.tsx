@@ -1,4 +1,4 @@
-import React, { useState, MouseEventHandler } from 'react'
+import React, { useState } from 'react'
 import { Button } from 'react-bootstrap'
 import { withTheme } from '@rjsf/core'
 import { Theme as Bootstrap4Theme } from '@rjsf/bootstrap-4'

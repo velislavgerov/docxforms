@@ -69,6 +69,7 @@ export default function Document() {
     if (documentTemplate == null) return
 
     const doc = documentTemplate
+    // eslint-disable-next-line react/jsx-props-no-spreading
     const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
     const isConfirmed = await confirm({
       title: "Are you sure?",

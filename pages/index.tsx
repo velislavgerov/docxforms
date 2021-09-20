@@ -18,11 +18,11 @@ export default function Home() {
         <p className="lead">Easily create sharable web forms to fill and generate documents with variable content.</p>
         {!session && <div className="gap-2 d-flex justify-content-center">
           <button type="button" className="btn btn-primary" onClick={() => signIn('auth0')}>Get Started</button>
-          <Link href="/f/example" passHref>
+          <Link href="/example" passHref>
             <a
               target="_blank"
               rel="noopener noreferrer"
-              type="button" className="btn btn-outline-secondary">See Example <i className="bi bi-box-arrow-up-right" /></a>
+              type="button" className="btn btn-outline-secondary">See Example</a>
           </Link>
         </div>}
         {session && <div className="gap-2 d-flex justify-content-center">

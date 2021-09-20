@@ -17,6 +17,8 @@ const uploadDocumentTemplate = (params: IDocumentTemplateUploadParams) => mutate
     const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== createdDocumentTemplate.id)
     return [...filteredDocumentTemplates, createdDocumentTemplate]
   }
+
+  return undefined
 })
 
 const updateDocumentTemplate = (documentTemplateId: string, params: IDocumentTemplateUpdateParams) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
@@ -27,6 +29,8 @@ const updateDocumentTemplate = (documentTemplateId: string, params: IDocumentTem
     const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== updatedDocumentTemplate.id)
     return [...filteredDocumentTemplates, updatedDocumentTemplate]
   }
+
+  return undefined
 })
 
 const deleteDocumentTemplate = (documentTemplateId: string) => mutate(`/api/documents`, async (documentTemplates: [ IDocumentTemplate ]) => {
@@ -39,6 +43,8 @@ const deleteDocumentTemplate = (documentTemplateId: string) => mutate(`/api/docu
     const filteredDocumentTemplates = documentTemplates.filter((documentTemplate: IDocumentTemplate) => documentTemplate.id !== documentTemplateId)
     return [...filteredDocumentTemplates]
   }
+
+  return undefined
 })
 
 const downloadDocumentTemplate = (documentTemplateId: string) => axios({

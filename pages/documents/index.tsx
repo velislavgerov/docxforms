@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, SyntheticEvent } from 'react'
@@ -229,7 +230,7 @@ export default function Documents() {
   const handlePreview = (doc: IDocumentTemplate) => {
     const w = window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`, '_blank');
     if (!w) {
-      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}>this link</a> instead</span>)
+      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`}>this link</a> instead</span>)
     }
   }
 

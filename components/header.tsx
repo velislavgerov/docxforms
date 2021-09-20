@@ -24,12 +24,6 @@ export default function Header() {
             {!loading && !session && <button type="button" className="btn btn-outline-primary" onClick={() => signIn("auth0")}>Sign in</button>}
             {!loading && session &&
               <div className="gap-2 d-flex justify-content-center">
-                {/*<Link href="/documents" passHref>
-                  <button type="button" className="btn btn-link text-decoration-none">Documents</button>
-                </Link>
-                <Link href="/submissions" passHref>
-                  <button type="button" className="btn btn-link text-decoration-none">Submissions</button>
-            </Link>*/}
                 <Dropdown>
                   <Dropdown.Toggle id="dropdown-basic" variant="anchor" className="d-flex align-items-center gap-2">
                     <img src={session.user?.image == null ? undefined : session.user?.image} alt="" className="rounded-circle" width="32" height="32" />

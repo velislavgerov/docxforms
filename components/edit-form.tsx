@@ -28,6 +28,9 @@ function EditForm(props: EditFormProps) {
 
   return (
     <Modal show={show} onHide={onCancel}>
+      <Modal.Header>
+        <Modal.Title>Edit <strong>{form.schema.title}</strong></Modal.Title>
+      </Modal.Header>
       <Modal.Body>
         <RJSFFormBuilder
           schema={state.schema}
@@ -44,10 +47,10 @@ function EditForm(props: EditFormProps) {
         />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button type="button" variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave}>
+        <Button type="submit" variant="primary" onClick={handleSave}>
           Save
         </Button>
       </Modal.Footer>

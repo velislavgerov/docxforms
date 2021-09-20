@@ -56,19 +56,45 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
     })
   }
 
+  const handleUpdate = async (form: IForm, params: IFormUpdateParams) => {
+    const updatePromise = updateDocumentForm(documentTemplateId, form.id, params)
+
+    updatePromise
+      .then(() => {
+        console.log(`Saving document ${form.schema.title}: success`)
+        setEditForm(null)
+      })
+      .catch((err) => {
+        console.log(`Saving document ${form.schema.title}: failed`, err)
+      })
+
+    toast.promise(
+      updatePromise,
+      {
+        pending: {
+          render: <span>Saving <strong>{form.schema.title}</strong>...</span>,
+        },
+        success: {
+          render: <span>Saved <strong>{form.schema.title}</strong></span>,
+        },
+        error: {
+          render: <span>Failed to save <strong>{form.schema.title}</strong></span>,
+        },
+      }
+    )
+  }
+
   const handleEdit = (form: IForm) => {
     setEditForm({
       show: true,
       onCancel: () => setEditForm(null),
-      onSave: (params: IFormUpdateParams) =>
-        updateDocumentForm(documentTemplateId, form.id, params)
-          .then(() => setEditForm(null)),
+      onSave: (params: IFormUpdateParams) => handleUpdate(form, params),
       form,
     })
   }
 
   const handleDelete = async (form: IForm) => {
-    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}><i className="bi bi-trash" /> Delete</button>
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
     const isConfirmed = await confirm({
       title: "Are you sure?",
       body: (<p>This action cannot be undone. This will permanently delete the <strong>{form.schema.title}</strong> form and all corresponding submissions.</p>),
@@ -76,12 +102,31 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
     })
     if (isConfirmed) {
       console.log(`Delete form ${form.schema.title}: confirmed`)
-      deleteDocumentForm(documentTemplateId, form.id)
-        .then(() => console.log(`Delete form ${form.schema.title}: success`))
+
+      const deletePromise = deleteDocumentForm(documentTemplateId, form.id)
+
+      deletePromise
+        .then(() => {
+          console.log(`Delete form ${form.schema.title}: confirmed`)
+        })
         .catch((err) => {
           console.log(`Delete form ${form.schema.title}: failed`, err)
-          alert(`Delete form ${form.schema.title}: failed`)
         })
+
+      toast.promise(
+        deletePromise,
+        {
+          pending: {
+            render: <span>Deleting <strong>{form.schema.title}</strong>...</span>,
+          },
+          success: {
+            render: <span>Deleted <strong>{form.schema.title}</strong></span>,
+          },
+          error: {
+            render: <span>Failed to delete <strong>{form.schema.title}</strong></span>,
+          },
+        }
+      )
     } else {
       console.log(`Delete form ${form.schema.title}: cancelled`)
     }
@@ -90,13 +135,26 @@ function DocumentForms({ documentTemplateId }: { documentTemplateId: string }) {
   const handleCreate = () => {
     if (documentTemplateId == null) return
 
-    createDocumentForm(documentTemplateId)
+    const createPromise = createDocumentForm(documentTemplateId)
+
+    toast.promise(
+      createPromise,
+      {
+        pending: {
+          render: <span>Adding <strong>New Form</strong>...</span>,
+        },
+        success: {
+          render: <span>Added <strong>New Form</strong></span>,
+        },
+        error: {
+          render: <span>Cloud not add <strong>New Form</strong></span>,
+        },
+      }
+    )
   }
 
   const handleShare = (form: IForm) => {
     const url = getServerURL(`/f/${form.id}`)
-
-    console.log(url)
     const sharePromise = copyToClipboard(url)
 
     toast.promise(

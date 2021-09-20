@@ -22,18 +22,20 @@ export default function Document() {
   const { query } = router
   const documentId = query.documentId as string
 
-  const { documentTemplate } = useDocumentTemplate(documentId, session)
+  const { documentTemplate, isLoading, isError } = useDocumentTemplate(documentId, session)
   const { confirm, ConfirmComponent } = useConfirm()
 
   const [showEdit, setShowEdit] = useState<boolean>(false);
 
   const handleSave = (params: IDocumentTemplateUpdateParams) => {
+    if (documentTemplate == null) return
+
     const updatePromise = updateDocumentTemplate(documentTemplate.id, params)
 
     updatePromise
       .then(() => {
         console.log(`Saving document ${documentTemplate.name}: success`)
-        setEditDocument(null)
+        setShowEdit(false)
       })
       .catch((err) => {
         console.log(`Saving document ${documentTemplate.name}: failed`, err)
@@ -67,7 +69,7 @@ export default function Document() {
     if (documentTemplate == null) return
 
     const doc = documentTemplate
-    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}><i className="bi bi-trash" /> Delete</button>
+    const DeleteBtn = (props: any) => <button type="button" className="btn btn-danger" {...props}>Delete</button>
     const isConfirmed = await confirm({
       title: "Are you sure?",
       body: (<p>This action cannot be undone. This will permanently delete the <strong>{doc.name}</strong> document.</p>),
@@ -75,12 +77,32 @@ export default function Document() {
     })
     if (isConfirmed) {
       console.log(`Delete document ${doc.name}: confirmed`)
-      deleteDocumentTemplate(doc.id)
-        .then(() => console.log(`Delete document ${doc.name}: success`))
+
+      const deletePromise = deleteDocumentTemplate(doc.id)
+
+      deletePromise
+        .then(() => {
+          console.log(`Delete document ${doc.name}: success`)
+          router.push('/documents')
+        })
         .catch((err) => {
           console.log(`Delete document ${doc.name}: failed`, err)
-          alert(`Delete document ${doc.name}: failed: failed`)
         })
+
+      toast.promise(
+        deletePromise,
+        {
+          pending: {
+            render: <span>Deleting <strong>{doc.name}</strong>...</span>,
+          },
+          success: {
+            render: <span>Deleted <strong>{doc.name}</strong></span>,
+          },
+          error: {
+            render: <span>Failed to delete <strong>{doc.name}</strong></span>,
+          },
+        }
+      )
     } else {
       console.log(`Delete document ${doc.name}: cancelled`)
     }
@@ -89,7 +111,28 @@ export default function Document() {
   const handleDownload = () => {
     if (documentTemplate == null) return
 
-    downloadDocumentTemplate(documentTemplate.id)
+    const doc = documentTemplate
+    const downloadPromise = downloadDocumentTemplate(doc.id)
+
+    downloadPromise
+      .catch((err) => {
+        console.log(err)
+      })
+
+    toast.promise(
+      downloadPromise,
+      {
+        pending: {
+          render: <span>Starting download for <strong>{doc.name}</strong>...</span>,
+        },
+        success: {
+          render: <span>Download started for <strong>{doc.name}</strong></span>,
+        },
+        error: {
+          render: <span>Failed to start download for <strong>{doc.name}</strong></span>,
+        },
+      }
+    )
   }
 
   const handlePreview = () => {
@@ -97,7 +140,7 @@ export default function Document() {
 
     const w = window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`, '_blank');
     if (!w) {
-      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}>clicking</a> here</span>)
+      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}>this link</a> instead</span>)
     }
   }
 
@@ -106,6 +149,40 @@ export default function Document() {
 
   // If no session exists, display access denied message
   if (!session) { return <AccessDenied /> }
+
+  if (documentTemplate == null || isLoading) {
+    return (<>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
+          <li className="breadcrumb-item active"><Link href="/documents"><a>Documents</a></Link></li>
+          <li className="breadcrumb-item active" aria-current="page">
+            ...
+          </li>
+        </ol>
+      </nav>
+      <p className="alert alert-light lead">
+        Loading document...
+      </p>
+    </>)
+  }
+
+  if (documentTemplate == null || isError) {
+    return (<>
+      <nav aria-label="breadcrumb">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item"><Link href="/"><a>Home</a></Link></li>
+          <li className="breadcrumb-item active"><Link href="/documents"><a>Documents</a></Link></li>
+          <li className="breadcrumb-item active" aria-current="page">
+            ...
+          </li>
+        </ol>
+      </nav>
+      <p className="alert alert-danger lead" role="alert">
+        Unexpected error occured
+      </p>
+    </>)
+  }
 
   // If session exists, display content
   return (

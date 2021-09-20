@@ -113,6 +113,7 @@ export default async function protectedHandler(
             file: buffer,
             fileLastModifiedDate: file.lastModifiedDate!,
             tags,
+            description: '',
           },
           select: {
             id: true,

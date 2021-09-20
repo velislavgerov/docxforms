@@ -227,7 +227,10 @@ export default function Documents() {
   }
 
   const handlePreview = (doc: IDocumentTemplate) => {
-    window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`, '_blank');
+    const w = window.open(`https://view.officeapps.live.com/op/embed.aspx?src=${doc.fileUrl}`, '_blank');
+    if (!w) {
+      toast.warn(<span>Could not open preview. Try <a target="_blank" rel="noopener noreferrer" href={`https://view.officeapps.live.com/op/embed.aspx?src=${documentTemplate.fileUrl}`}>this link</a> instead</span>)
+    }
   }
 
   // When rendering client side don't display anything until loading is complete

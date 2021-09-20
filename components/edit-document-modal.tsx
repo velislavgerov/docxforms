@@ -36,6 +36,9 @@ function EditDocument({ show, documentTemplate, onCancel, onSave }: EditDocument
 
   return (
     <Modal show={show} onHide={onCancel}>
+      <Modal.Header>
+        <Modal.Title>Edit <strong>{documentTemplate.name}</strong></Modal.Title>
+      </Modal.Header>
       <Modal.Body>
         <Form
           schema={{

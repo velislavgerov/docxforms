@@ -76,6 +76,13 @@ export default async function protectedHandler(
           },
         })
 
+        if (documentTemplate == null) {
+          return res.status(404).json({
+            success: false,
+            message: "Document does not exist"
+          })
+        }
+
         return res.status(200).json({
           id: documentTemplate!.id,
           name: documentTemplate!.fileName,

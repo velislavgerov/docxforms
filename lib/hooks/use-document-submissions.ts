@@ -36,11 +36,17 @@ const downloadDocumentSubmission = (submission: ISubmission) => axios({
     link.click();
   })
 
-function useDocumentSubmissions (documentTemplateId: null | string, session: null | Session ) {
+interface DocumentSubmissions {
+  submissions: [] | [ISubmission] | undefined
+  isLoading: boolean
+  isError: boolean
+}
+
+function useDocumentSubmissions (documentTemplateId: null | string, session: null | Session ): DocumentSubmissions {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/submissions` : null)
 
   return {
-    submissions: <null | [] | [ISubmission]>data,
+    submissions: data,
     isLoading: !error && !data,
     isError: error,
   }

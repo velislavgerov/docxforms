@@ -66,12 +66,18 @@ const downloadDocumentTemplate = (documentTemplateId: string) => axios({
     document.body.appendChild(link);
     link.click();
   })
+
+interface DocumentTemplates {
+  documentTemplates: [] | [IDocumentTemplate] | undefined
+  isLoading: boolean
+  isError: boolean
+}
   
-function useDocumentTemplates (session: Session | null) {
+function useDocumentTemplates (session: Session | null): DocumentTemplates {
   const { data, error } = useSWR(session != null ? `/api/documents` : null)
 
   return {
-    documentTemplates: <null | [] | [IDocumentTemplate]>data,
+    documentTemplates: data,
     isLoading: !error && !data,
     isError: error,
   }

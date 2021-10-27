@@ -2,11 +2,17 @@ import useSWR from 'swr'
 import { Session } from 'next-auth'
 import { IDocumentTemplate } from '../types/api'
 
-function useDocumentTemplate (documentTemplateId: string | null, session: Session| null) {
+interface DocumentTemplate {
+  documentTemplate: IDocumentTemplate | undefined
+  isLoading: boolean
+  isError: boolean
+}
+
+function useDocumentTemplate (documentTemplateId: string | null, session: Session| null): DocumentTemplate {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}` : null)
 
   return {
-    documentTemplate: <null | IDocumentTemplate>data,
+    documentTemplate: data,
     isLoading: !error && !data,
     isError: error
   }

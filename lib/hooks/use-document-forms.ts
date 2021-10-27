@@ -46,11 +46,17 @@ const submitDocumentForm = async (documentTemplateId: string, formId: string, fo
   return res
 }
 
-function useDocumentForms (documentTemplateId: string | null, session: Session | null) {
+interface DocumentForms {
+  forms: [] | [IForm] | undefined
+  isLoading: boolean
+  isError: boolean
+}
+
+function useDocumentForms (documentTemplateId: string | null, session: Session | null): DocumentForms {
   const { data, error } = useSWR(documentTemplateId != null && session != null ? `/api/documents/${documentTemplateId}/forms` : null)
 
   return {
-    forms: <null | [] | [IForm]>data,
+    forms: data,
     isLoading: !error && !data,
     isError: error,
   }
